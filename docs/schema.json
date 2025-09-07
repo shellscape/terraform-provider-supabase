@@ -1,7 +1,7 @@
 {
   "format_version": "1.0",
   "provider_schemas": {
-    "registry.terraform.io/supabase/supabase": {
+    "registry.terraform.io/shellscape/supabase": {
       "provider": {
         "version": 0,
         "block": {
@@ -117,6 +117,93 @@
             "description_kind": "markdown"
           }
         },
+        "supabase_edge_function": {
+          "version": 0,
+          "block": {
+            "attributes": {
+              "body": {
+                "type": "string",
+                "description": "Function source code",
+                "description_kind": "markdown",
+                "required": true
+              },
+              "compute_multiplier": {
+                "type": "number",
+                "description": "Compute multiplier for the function (affects performance and billing)",
+                "description_kind": "markdown",
+                "optional": true
+              },
+              "created_at": {
+                "type": "number",
+                "description": "Unix timestamp when the function was created",
+                "description_kind": "markdown",
+                "computed": true
+              },
+              "entrypoint_path": {
+                "type": "string",
+                "description": "Path to the function entrypoint file",
+                "description_kind": "markdown",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "description": "Function ID",
+                "description_kind": "markdown",
+                "computed": true
+              },
+              "import_map": {
+                "type": "bool",
+                "description": "Whether to use import map",
+                "description_kind": "markdown",
+                "optional": true
+              },
+              "import_map_path": {
+                "type": "string",
+                "description": "Path to the import map file",
+                "description_kind": "markdown",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Function display name",
+                "description_kind": "markdown",
+                "required": true
+              },
+              "project_ref": {
+                "type": "string",
+                "description": "Project reference ID",
+                "description_kind": "markdown",
+                "required": true
+              },
+              "slug": {
+                "type": "string",
+                "description": "Function slug (URL path component). Must contain only letters, numbers, underscores, and hyphens.",
+                "description_kind": "markdown",
+                "required": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Function status",
+                "description_kind": "markdown",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "number",
+                "description": "Unix timestamp when the function was last updated",
+                "description_kind": "markdown",
+                "computed": true
+              },
+              "verify_jwt": {
+                "type": "bool",
+                "description": "Whether to verify JWT tokens for this function",
+                "description_kind": "markdown",
+                "optional": true
+              }
+            },
+            "description": "\n\nManages a Supabase edge function.\n\nRefer to the [Supabase Edge Functions documentation](https://supabase.com/docs/guides/functions) for more information.\n\n## Example Usage\n\n~~~hcl\nresource \"supabase_edge_function\" \"example\" {\n  project_ref = \"abcdefghijklmnopqrst\"\n  slug        = \"hello-world\"\n  name        = \"Hello World Function\"\n  body        = file(\"${path.module}/functions/hello-world/index.ts\")\n  verify_jwt  = false\n}\n~~~\n",
+            "description_kind": "markdown"
+          }
+        },
         "supabase_project": {
           "version": 0,
           "block": {
@@ -168,20 +255,1118 @@
           "block": {
             "attributes": {
               "api": {
-                "type": "string",
-                "description": "API settings as [serialised JSON](https://api.supabase.com/api/v1#/services/updatePostgRESTConfig)",
+                "nested_type": {
+                  "attributes": {
+                    "db_extra_search_path": {
+                      "type": "string",
+                      "description": "Extra search path for database schemas",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "db_pool": {
+                      "type": "number",
+                      "description": "Database connection pool size",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "db_schema": {
+                      "type": "string",
+                      "description": "Database schemas to expose via PostgREST",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "max_rows": {
+                      "type": "number",
+                      "description": "Maximum number of rows returned in a single request",
+                      "description_kind": "markdown",
+                      "optional": true
+                    }
+                  },
+                  "nesting_mode": "single"
+                },
+                "description": "API settings as [structured configuration](https://api.supabase.com/api/v1#/v1-update-postgrest-service-config)",
                 "description_kind": "markdown",
                 "optional": true
               },
               "auth": {
-                "type": "string",
-                "description": "Auth settings as [serialised JSON](https://api.supabase.com/api/v1#/projects%20config/updateV1AuthConfig)",
+                "nested_type": {
+                  "attributes": {
+                    "api_max_request_duration": {
+                      "type": "number",
+                      "description": "Maximum request duration for auth API in seconds",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "db_max_pool_size": {
+                      "type": "number",
+                      "description": "Maximum database connection pool size for auth service",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "disable_signup": {
+                      "type": "bool",
+                      "description": "Disable new user signups",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "external_anonymous_users_enabled": {
+                      "type": "bool",
+                      "description": "Enable anonymous users for external authentication",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "external_apple": {
+                      "nested_type": {
+                        "attributes": {
+                          "additional_client_ids": {
+                            "type": "string",
+                            "description": "Additional Apple client IDs (comma-separated)",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "client_id": {
+                            "type": "string",
+                            "description": "Apple OAuth client ID",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "enabled": {
+                            "type": "bool",
+                            "description": "Enable Apple OAuth provider",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "secret": {
+                            "type": "string",
+                            "description": "Apple OAuth client secret",
+                            "description_kind": "markdown",
+                            "optional": true,
+                            "sensitive": true
+                          },
+                          "url": {
+                            "type": "string",
+                            "description": "Apple OAuth server URL (for self-hosted providers)",
+                            "description_kind": "markdown",
+                            "optional": true
+                          }
+                        },
+                        "nesting_mode": "single"
+                      },
+                      "description": "Apple OAuth provider configuration",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "external_azure": {
+                      "nested_type": {
+                        "attributes": {
+                          "additional_client_ids": {
+                            "type": "string",
+                            "description": "Additional Azure client IDs (comma-separated)",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "client_id": {
+                            "type": "string",
+                            "description": "Azure OAuth client ID",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "enabled": {
+                            "type": "bool",
+                            "description": "Enable Azure OAuth provider",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "secret": {
+                            "type": "string",
+                            "description": "Azure OAuth client secret",
+                            "description_kind": "markdown",
+                            "optional": true,
+                            "sensitive": true
+                          },
+                          "url": {
+                            "type": "string",
+                            "description": "Azure OAuth server URL (for self-hosted providers)",
+                            "description_kind": "markdown",
+                            "optional": true
+                          }
+                        },
+                        "nesting_mode": "single"
+                      },
+                      "description": "Azure OAuth provider configuration",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "external_bitbucket": {
+                      "nested_type": {
+                        "attributes": {
+                          "additional_client_ids": {
+                            "type": "string",
+                            "description": "Additional Bitbucket client IDs (comma-separated)",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "client_id": {
+                            "type": "string",
+                            "description": "Bitbucket OAuth client ID",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "enabled": {
+                            "type": "bool",
+                            "description": "Enable Bitbucket OAuth provider",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "secret": {
+                            "type": "string",
+                            "description": "Bitbucket OAuth client secret",
+                            "description_kind": "markdown",
+                            "optional": true,
+                            "sensitive": true
+                          },
+                          "url": {
+                            "type": "string",
+                            "description": "Bitbucket OAuth server URL (for self-hosted providers)",
+                            "description_kind": "markdown",
+                            "optional": true
+                          }
+                        },
+                        "nesting_mode": "single"
+                      },
+                      "description": "Bitbucket OAuth provider configuration",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "external_discord": {
+                      "nested_type": {
+                        "attributes": {
+                          "additional_client_ids": {
+                            "type": "string",
+                            "description": "Additional Discord client IDs (comma-separated)",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "client_id": {
+                            "type": "string",
+                            "description": "Discord OAuth client ID",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "enabled": {
+                            "type": "bool",
+                            "description": "Enable Discord OAuth provider",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "secret": {
+                            "type": "string",
+                            "description": "Discord OAuth client secret",
+                            "description_kind": "markdown",
+                            "optional": true,
+                            "sensitive": true
+                          },
+                          "url": {
+                            "type": "string",
+                            "description": "Discord OAuth server URL (for self-hosted providers)",
+                            "description_kind": "markdown",
+                            "optional": true
+                          }
+                        },
+                        "nesting_mode": "single"
+                      },
+                      "description": "Discord OAuth provider configuration",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "external_email_enabled": {
+                      "type": "bool",
+                      "description": "Enable email/password authentication",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "external_facebook": {
+                      "nested_type": {
+                        "attributes": {
+                          "additional_client_ids": {
+                            "type": "string",
+                            "description": "Additional Facebook client IDs (comma-separated)",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "client_id": {
+                            "type": "string",
+                            "description": "Facebook OAuth client ID",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "enabled": {
+                            "type": "bool",
+                            "description": "Enable Facebook OAuth provider",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "secret": {
+                            "type": "string",
+                            "description": "Facebook OAuth client secret",
+                            "description_kind": "markdown",
+                            "optional": true,
+                            "sensitive": true
+                          },
+                          "url": {
+                            "type": "string",
+                            "description": "Facebook OAuth server URL (for self-hosted providers)",
+                            "description_kind": "markdown",
+                            "optional": true
+                          }
+                        },
+                        "nesting_mode": "single"
+                      },
+                      "description": "Facebook OAuth provider configuration",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "external_figma": {
+                      "nested_type": {
+                        "attributes": {
+                          "additional_client_ids": {
+                            "type": "string",
+                            "description": "Additional Figma client IDs (comma-separated)",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "client_id": {
+                            "type": "string",
+                            "description": "Figma OAuth client ID",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "enabled": {
+                            "type": "bool",
+                            "description": "Enable Figma OAuth provider",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "secret": {
+                            "type": "string",
+                            "description": "Figma OAuth client secret",
+                            "description_kind": "markdown",
+                            "optional": true,
+                            "sensitive": true
+                          },
+                          "url": {
+                            "type": "string",
+                            "description": "Figma OAuth server URL (for self-hosted providers)",
+                            "description_kind": "markdown",
+                            "optional": true
+                          }
+                        },
+                        "nesting_mode": "single"
+                      },
+                      "description": "Figma OAuth provider configuration",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "external_github": {
+                      "nested_type": {
+                        "attributes": {
+                          "additional_client_ids": {
+                            "type": "string",
+                            "description": "Additional GitHub client IDs (comma-separated)",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "client_id": {
+                            "type": "string",
+                            "description": "GitHub OAuth client ID",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "enabled": {
+                            "type": "bool",
+                            "description": "Enable GitHub OAuth provider",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "secret": {
+                            "type": "string",
+                            "description": "GitHub OAuth client secret",
+                            "description_kind": "markdown",
+                            "optional": true,
+                            "sensitive": true
+                          },
+                          "url": {
+                            "type": "string",
+                            "description": "GitHub OAuth server URL (for self-hosted providers)",
+                            "description_kind": "markdown",
+                            "optional": true
+                          }
+                        },
+                        "nesting_mode": "single"
+                      },
+                      "description": "GitHub OAuth provider configuration",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "external_gitlab": {
+                      "nested_type": {
+                        "attributes": {
+                          "additional_client_ids": {
+                            "type": "string",
+                            "description": "Additional GitLab client IDs (comma-separated)",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "client_id": {
+                            "type": "string",
+                            "description": "GitLab OAuth client ID",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "enabled": {
+                            "type": "bool",
+                            "description": "Enable GitLab OAuth provider",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "secret": {
+                            "type": "string",
+                            "description": "GitLab OAuth client secret",
+                            "description_kind": "markdown",
+                            "optional": true,
+                            "sensitive": true
+                          },
+                          "url": {
+                            "type": "string",
+                            "description": "GitLab OAuth server URL (for self-hosted providers)",
+                            "description_kind": "markdown",
+                            "optional": true
+                          }
+                        },
+                        "nesting_mode": "single"
+                      },
+                      "description": "GitLab OAuth provider configuration",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "external_google": {
+                      "nested_type": {
+                        "attributes": {
+                          "additional_client_ids": {
+                            "type": "string",
+                            "description": "Additional Google client IDs (comma-separated)",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "client_id": {
+                            "type": "string",
+                            "description": "Google OAuth client ID",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "enabled": {
+                            "type": "bool",
+                            "description": "Enable Google OAuth provider",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "secret": {
+                            "type": "string",
+                            "description": "Google OAuth client secret",
+                            "description_kind": "markdown",
+                            "optional": true,
+                            "sensitive": true
+                          },
+                          "url": {
+                            "type": "string",
+                            "description": "Google OAuth server URL (for self-hosted providers)",
+                            "description_kind": "markdown",
+                            "optional": true
+                          }
+                        },
+                        "nesting_mode": "single"
+                      },
+                      "description": "Google OAuth provider configuration",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "external_kakao": {
+                      "nested_type": {
+                        "attributes": {
+                          "additional_client_ids": {
+                            "type": "string",
+                            "description": "Additional Kakao client IDs (comma-separated)",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "client_id": {
+                            "type": "string",
+                            "description": "Kakao OAuth client ID",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "enabled": {
+                            "type": "bool",
+                            "description": "Enable Kakao OAuth provider",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "secret": {
+                            "type": "string",
+                            "description": "Kakao OAuth client secret",
+                            "description_kind": "markdown",
+                            "optional": true,
+                            "sensitive": true
+                          },
+                          "url": {
+                            "type": "string",
+                            "description": "Kakao OAuth server URL (for self-hosted providers)",
+                            "description_kind": "markdown",
+                            "optional": true
+                          }
+                        },
+                        "nesting_mode": "single"
+                      },
+                      "description": "Kakao OAuth provider configuration",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "external_keycloak": {
+                      "nested_type": {
+                        "attributes": {
+                          "additional_client_ids": {
+                            "type": "string",
+                            "description": "Additional Keycloak client IDs (comma-separated)",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "client_id": {
+                            "type": "string",
+                            "description": "Keycloak OAuth client ID",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "enabled": {
+                            "type": "bool",
+                            "description": "Enable Keycloak OAuth provider",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "secret": {
+                            "type": "string",
+                            "description": "Keycloak OAuth client secret",
+                            "description_kind": "markdown",
+                            "optional": true,
+                            "sensitive": true
+                          },
+                          "url": {
+                            "type": "string",
+                            "description": "Keycloak OAuth server URL (for self-hosted providers)",
+                            "description_kind": "markdown",
+                            "optional": true
+                          }
+                        },
+                        "nesting_mode": "single"
+                      },
+                      "description": "Keycloak OAuth provider configuration",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "external_linkedin_oidc": {
+                      "nested_type": {
+                        "attributes": {
+                          "additional_client_ids": {
+                            "type": "string",
+                            "description": "Additional LinkedIn OIDC client IDs (comma-separated)",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "client_id": {
+                            "type": "string",
+                            "description": "LinkedIn OIDC OAuth client ID",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "enabled": {
+                            "type": "bool",
+                            "description": "Enable LinkedIn OIDC OAuth provider",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "secret": {
+                            "type": "string",
+                            "description": "LinkedIn OIDC OAuth client secret",
+                            "description_kind": "markdown",
+                            "optional": true,
+                            "sensitive": true
+                          },
+                          "url": {
+                            "type": "string",
+                            "description": "LinkedIn OIDC OAuth server URL (for self-hosted providers)",
+                            "description_kind": "markdown",
+                            "optional": true
+                          }
+                        },
+                        "nesting_mode": "single"
+                      },
+                      "description": "LinkedIn OIDC OAuth provider configuration",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "external_notion": {
+                      "nested_type": {
+                        "attributes": {
+                          "additional_client_ids": {
+                            "type": "string",
+                            "description": "Additional Notion client IDs (comma-separated)",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "client_id": {
+                            "type": "string",
+                            "description": "Notion OAuth client ID",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "enabled": {
+                            "type": "bool",
+                            "description": "Enable Notion OAuth provider",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "secret": {
+                            "type": "string",
+                            "description": "Notion OAuth client secret",
+                            "description_kind": "markdown",
+                            "optional": true,
+                            "sensitive": true
+                          },
+                          "url": {
+                            "type": "string",
+                            "description": "Notion OAuth server URL (for self-hosted providers)",
+                            "description_kind": "markdown",
+                            "optional": true
+                          }
+                        },
+                        "nesting_mode": "single"
+                      },
+                      "description": "Notion OAuth provider configuration",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "external_slack": {
+                      "nested_type": {
+                        "attributes": {
+                          "additional_client_ids": {
+                            "type": "string",
+                            "description": "Additional Slack client IDs (comma-separated)",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "client_id": {
+                            "type": "string",
+                            "description": "Slack OAuth client ID",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "enabled": {
+                            "type": "bool",
+                            "description": "Enable Slack OAuth provider",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "secret": {
+                            "type": "string",
+                            "description": "Slack OAuth client secret",
+                            "description_kind": "markdown",
+                            "optional": true,
+                            "sensitive": true
+                          },
+                          "url": {
+                            "type": "string",
+                            "description": "Slack OAuth server URL (for self-hosted providers)",
+                            "description_kind": "markdown",
+                            "optional": true
+                          }
+                        },
+                        "nesting_mode": "single"
+                      },
+                      "description": "Slack OAuth provider configuration",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "external_slack_oidc": {
+                      "nested_type": {
+                        "attributes": {
+                          "additional_client_ids": {
+                            "type": "string",
+                            "description": "Additional Slack OIDC client IDs (comma-separated)",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "client_id": {
+                            "type": "string",
+                            "description": "Slack OIDC OAuth client ID",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "enabled": {
+                            "type": "bool",
+                            "description": "Enable Slack OIDC OAuth provider",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "secret": {
+                            "type": "string",
+                            "description": "Slack OIDC OAuth client secret",
+                            "description_kind": "markdown",
+                            "optional": true,
+                            "sensitive": true
+                          },
+                          "url": {
+                            "type": "string",
+                            "description": "Slack OIDC OAuth server URL (for self-hosted providers)",
+                            "description_kind": "markdown",
+                            "optional": true
+                          }
+                        },
+                        "nesting_mode": "single"
+                      },
+                      "description": "Slack OIDC OAuth provider configuration",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "external_spotify": {
+                      "nested_type": {
+                        "attributes": {
+                          "additional_client_ids": {
+                            "type": "string",
+                            "description": "Additional Spotify client IDs (comma-separated)",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "client_id": {
+                            "type": "string",
+                            "description": "Spotify OAuth client ID",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "enabled": {
+                            "type": "bool",
+                            "description": "Enable Spotify OAuth provider",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "secret": {
+                            "type": "string",
+                            "description": "Spotify OAuth client secret",
+                            "description_kind": "markdown",
+                            "optional": true,
+                            "sensitive": true
+                          },
+                          "url": {
+                            "type": "string",
+                            "description": "Spotify OAuth server URL (for self-hosted providers)",
+                            "description_kind": "markdown",
+                            "optional": true
+                          }
+                        },
+                        "nesting_mode": "single"
+                      },
+                      "description": "Spotify OAuth provider configuration",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "external_twitch": {
+                      "nested_type": {
+                        "attributes": {
+                          "additional_client_ids": {
+                            "type": "string",
+                            "description": "Additional Twitch client IDs (comma-separated)",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "client_id": {
+                            "type": "string",
+                            "description": "Twitch OAuth client ID",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "enabled": {
+                            "type": "bool",
+                            "description": "Enable Twitch OAuth provider",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "secret": {
+                            "type": "string",
+                            "description": "Twitch OAuth client secret",
+                            "description_kind": "markdown",
+                            "optional": true,
+                            "sensitive": true
+                          },
+                          "url": {
+                            "type": "string",
+                            "description": "Twitch OAuth server URL (for self-hosted providers)",
+                            "description_kind": "markdown",
+                            "optional": true
+                          }
+                        },
+                        "nesting_mode": "single"
+                      },
+                      "description": "Twitch OAuth provider configuration",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "external_twitter": {
+                      "nested_type": {
+                        "attributes": {
+                          "additional_client_ids": {
+                            "type": "string",
+                            "description": "Additional Twitter client IDs (comma-separated)",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "client_id": {
+                            "type": "string",
+                            "description": "Twitter OAuth client ID",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "enabled": {
+                            "type": "bool",
+                            "description": "Enable Twitter OAuth provider",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "secret": {
+                            "type": "string",
+                            "description": "Twitter OAuth client secret",
+                            "description_kind": "markdown",
+                            "optional": true,
+                            "sensitive": true
+                          },
+                          "url": {
+                            "type": "string",
+                            "description": "Twitter OAuth server URL (for self-hosted providers)",
+                            "description_kind": "markdown",
+                            "optional": true
+                          }
+                        },
+                        "nesting_mode": "single"
+                      },
+                      "description": "Twitter OAuth provider configuration",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "external_workos": {
+                      "nested_type": {
+                        "attributes": {
+                          "additional_client_ids": {
+                            "type": "string",
+                            "description": "Additional WorkOS client IDs (comma-separated)",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "client_id": {
+                            "type": "string",
+                            "description": "WorkOS OAuth client ID",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "enabled": {
+                            "type": "bool",
+                            "description": "Enable WorkOS OAuth provider",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "secret": {
+                            "type": "string",
+                            "description": "WorkOS OAuth client secret",
+                            "description_kind": "markdown",
+                            "optional": true,
+                            "sensitive": true
+                          },
+                          "url": {
+                            "type": "string",
+                            "description": "WorkOS OAuth server URL (for self-hosted providers)",
+                            "description_kind": "markdown",
+                            "optional": true
+                          }
+                        },
+                        "nesting_mode": "single"
+                      },
+                      "description": "WorkOS OAuth provider configuration",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "external_zoom": {
+                      "nested_type": {
+                        "attributes": {
+                          "additional_client_ids": {
+                            "type": "string",
+                            "description": "Additional Zoom client IDs (comma-separated)",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "client_id": {
+                            "type": "string",
+                            "description": "Zoom OAuth client ID",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "enabled": {
+                            "type": "bool",
+                            "description": "Enable Zoom OAuth provider",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "secret": {
+                            "type": "string",
+                            "description": "Zoom OAuth client secret",
+                            "description_kind": "markdown",
+                            "optional": true,
+                            "sensitive": true
+                          },
+                          "url": {
+                            "type": "string",
+                            "description": "Zoom OAuth server URL (for self-hosted providers)",
+                            "description_kind": "markdown",
+                            "optional": true
+                          }
+                        },
+                        "nesting_mode": "single"
+                      },
+                      "description": "Zoom OAuth provider configuration",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "mailer_otp_exp": {
+                      "type": "number",
+                      "description": "Email OTP expiration time in seconds",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "mfa_phone_otp_length": {
+                      "type": "number",
+                      "description": "Length of MFA phone OTP codes",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "security_captcha_enabled": {
+                      "type": "bool",
+                      "description": "Enable CAPTCHA for authentication",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "security_captcha_provider": {
+                      "type": "string",
+                      "description": "CAPTCHA provider",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "security_captcha_secret": {
+                      "type": "string",
+                      "description": "CAPTCHA secret key",
+                      "description_kind": "markdown",
+                      "optional": true,
+                      "sensitive": true
+                    },
+                    "site_url": {
+                      "type": "string",
+                      "description": "Site URL for redirects and email links",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "sms_otp_length": {
+                      "type": "number",
+                      "description": "Length of SMS OTP codes",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "sms_provider": {
+                      "type": "string",
+                      "description": "SMS provider (twilio, messagebird, textlocal, vonage)",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "smtp_host": {
+                      "type": "string",
+                      "description": "SMTP server hostname",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "smtp_pass": {
+                      "type": "string",
+                      "description": "SMTP password",
+                      "description_kind": "markdown",
+                      "optional": true,
+                      "sensitive": true
+                    },
+                    "smtp_port": {
+                      "type": "number",
+                      "description": "SMTP server port",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "smtp_user": {
+                      "type": "string",
+                      "description": "SMTP username",
+                      "description_kind": "markdown",
+                      "optional": true
+                    }
+                  },
+                  "nesting_mode": "single"
+                },
+                "description": "Auth settings as [structured configuration](https://api.supabase.com/api/v1#/v1-update-auth-service-config)",
                 "description_kind": "markdown",
                 "optional": true
               },
               "database": {
-                "type": "string",
-                "description": "Database settings as [serialised JSON](https://api.supabase.com/api/v1#/projects%20config/updateConfig)",
+                "nested_type": {
+                  "attributes": {
+                    "effective_cache_size": {
+                      "type": "string",
+                      "description": "Amount of memory available for disk caching by the OS and within the database itself",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "logical_decoding_work_mem": {
+                      "type": "string",
+                      "description": "Memory used for logical decoding",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "maintenance_work_mem": {
+                      "type": "string",
+                      "description": "Maximum amount of memory to be used by maintenance operations",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "max_connections": {
+                      "type": "number",
+                      "description": "Maximum number of concurrent connections to the database server",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "max_locks_per_transaction": {
+                      "type": "number",
+                      "description": "Maximum number of locks per transaction",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "max_parallel_maintenance_workers": {
+                      "type": "number",
+                      "description": "Maximum number of parallel maintenance workers",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "max_parallel_workers": {
+                      "type": "number",
+                      "description": "Maximum number of parallel worker processes",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "max_parallel_workers_per_gather": {
+                      "type": "number",
+                      "description": "Maximum number of parallel workers per Gather node",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "max_replication_slots": {
+                      "type": "number",
+                      "description": "Maximum number of replication slots",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "max_slot_wal_keep_size": {
+                      "type": "string",
+                      "description": "Maximum size of WAL files that replication slots are allowed to retain",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "max_standby_archive_delay": {
+                      "type": "string",
+                      "description": "Maximum delay before canceling queries when a hot standby server is processing archived WAL data",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "max_standby_streaming_delay": {
+                      "type": "string",
+                      "description": "Maximum delay before canceling queries when a hot standby server is processing streamed WAL data",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "max_wal_senders": {
+                      "type": "number",
+                      "description": "Maximum number of WAL sender processes",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "max_wal_size": {
+                      "type": "string",
+                      "description": "Maximum size to let the WAL grow during automatic checkpoints",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "max_worker_processes": {
+                      "type": "number",
+                      "description": "Maximum number of background worker processes",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "restart_database": {
+                      "type": "bool",
+                      "description": "Whether to restart the database to apply configuration changes",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "session_replication_role": {
+                      "type": "string",
+                      "description": "Controls firing of replication-related triggers and rules (origin, replica, local)",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "shared_buffers": {
+                      "type": "string",
+                      "description": "Amount of memory the database server uses for shared memory buffers",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "statement_timeout": {
+                      "type": "string",
+                      "description": "Maximum allowed duration of any statement",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "track_commit_timestamp": {
+                      "type": "bool",
+                      "description": "Whether to track commit time stamps of transactions",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "wal_keep_size": {
+                      "type": "string",
+                      "description": "Minimum size to retain in the pg_wal directory",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "wal_sender_timeout": {
+                      "type": "string",
+                      "description": "Maximum time to wait for WAL replication",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "work_mem": {
+                      "type": "string",
+                      "description": "Amount of memory to be used by internal sort operations and hash tables",
+                      "description_kind": "markdown",
+                      "optional": true
+                    }
+                  },
+                  "nesting_mode": "single"
+                },
+                "description": "Database settings as [structured configuration](https://api.supabase.com/api/v1#/v1-update-postgres-config)",
                 "description_kind": "markdown",
                 "optional": true
               },
@@ -192,14 +1377,46 @@
                 "computed": true
               },
               "network": {
-                "type": "string",
-                "description": "Network settings as serialised JSON",
+                "nested_type": {
+                  "attributes": {
+                    "db_allowed_cidrs": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "List of allowed IPv4 CIDR blocks for database access",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "db_allowed_cidrs_v6": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "List of allowed IPv6 CIDR blocks for database access",
+                      "description_kind": "markdown",
+                      "optional": true
+                    }
+                  },
+                  "nesting_mode": "single"
+                },
+                "description": "Network restrictions settings",
                 "description_kind": "markdown",
                 "optional": true
               },
               "pooler": {
-                "type": "string",
-                "description": "Pooler settings as serialised JSON",
+                "nested_type": {
+                  "attributes": {
+                    "default_pool_size": {
+                      "type": "number",
+                      "description": "Default connection pool size",
+                      "description_kind": "markdown",
+                      "optional": true
+                    }
+                  },
+                  "nesting_mode": "single"
+                },
+                "description": "Connection pooler settings",
                 "description_kind": "markdown",
                 "optional": true
               },
@@ -210,13 +1427,105 @@
                 "required": true
               },
               "storage": {
-                "type": "string",
-                "description": "Storage settings as serialised JSON",
+                "nested_type": {
+                  "attributes": {
+                    "features": {
+                      "nested_type": {
+                        "attributes": {
+                          "image_transformation": {
+                            "type": "bool",
+                            "description": "Enable image transformation features",
+                            "description_kind": "markdown",
+                            "optional": true
+                          }
+                        },
+                        "nesting_mode": "single"
+                      },
+                      "description": "Storage feature flags",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "file_size_limit": {
+                      "type": "number",
+                      "description": "Maximum file size limit in bytes",
+                      "description_kind": "markdown",
+                      "optional": true
+                    }
+                  },
+                  "nesting_mode": "single"
+                },
+                "description": "Storage configuration settings",
                 "description_kind": "markdown",
                 "optional": true
               }
             },
             "description": "Settings resource",
+            "description_kind": "markdown"
+          }
+        },
+        "supabase_storage_bucket": {
+          "version": 0,
+          "block": {
+            "attributes": {
+              "allowed_mime_types": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Allowed MIME types (null for no restriction). Use wildcards like 'image/*'",
+                "description_kind": "markdown",
+                "optional": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "When the bucket was created",
+                "description_kind": "markdown",
+                "computed": true
+              },
+              "file_size_limit": {
+                "type": "number",
+                "description": "Maximum file size in bytes (null for no limit)",
+                "description_kind": "markdown",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "description": "Bucket ID",
+                "description_kind": "markdown",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Bucket name (must be unique within project). Must contain only lowercase letters, numbers, dots, and hyphens.",
+                "description_kind": "markdown",
+                "required": true
+              },
+              "owner": {
+                "type": "string",
+                "description": "Bucket owner ID",
+                "description_kind": "markdown",
+                "computed": true
+              },
+              "project_ref": {
+                "type": "string",
+                "description": "Project reference ID",
+                "description_kind": "markdown",
+                "required": true
+              },
+              "public": {
+                "type": "bool",
+                "description": "Whether the bucket is publicly accessible",
+                "description_kind": "markdown",
+                "required": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "When the bucket was last updated",
+                "description_kind": "markdown",
+                "computed": true
+              }
+            },
+            "description": "\n\nManages a Supabase storage bucket.\n\nRefer to the [Supabase Storage documentation](https://supabase.com/docs/guides/storage) for more information.\n\n## Example Usage\n\n~~~hcl\nresource \"supabase_storage_bucket\" \"example\" {\n  project_ref    = \"abcdefghijklmnopqrst\"\n  name           = \"my-bucket\"\n  public         = false\n  file_size_limit = 52428800  # 50MB\n  allowed_mime_types = [\"image/*\", \"video/mp4\"]\n}\n~~~\n",
             "description_kind": "markdown"
           }
         }
@@ -315,6 +1624,73 @@
               }
             },
             "description": "Pooler data source",
+            "description_kind": "markdown"
+          }
+        },
+        "supabase_storage_buckets": {
+          "version": 0,
+          "block": {
+            "attributes": {
+              "buckets": {
+                "nested_type": {
+                  "attributes": {
+                    "created_at": {
+                      "type": "string",
+                      "description": "When the bucket was created",
+                      "description_kind": "markdown",
+                      "computed": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "description": "Bucket ID",
+                      "description_kind": "markdown",
+                      "computed": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Bucket name",
+                      "description_kind": "markdown",
+                      "computed": true
+                    },
+                    "owner": {
+                      "type": "string",
+                      "description": "Bucket owner ID",
+                      "description_kind": "markdown",
+                      "computed": true
+                    },
+                    "public": {
+                      "type": "bool",
+                      "description": "Whether the bucket is public",
+                      "description_kind": "markdown",
+                      "computed": true
+                    },
+                    "updated_at": {
+                      "type": "string",
+                      "description": "When the bucket was last updated",
+                      "description_kind": "markdown",
+                      "computed": true
+                    }
+                  },
+                  "nesting_mode": "list"
+                },
+                "description": "List of storage buckets",
+                "description_kind": "markdown",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "description": "Same as project_ref",
+                "description_kind": "markdown",
+                "computed": true
+              },
+              "project_ref": {
+                "type": "string",
+                "description": "Project reference ID",
+                "description_kind": "markdown",
+                "required": true
+              }
+            },
+            "description": "\n\nRetrieves a list of storage buckets for a Supabase project.\n\n## Example Usage\n\n~~~hcl\ndata \"supabase_storage_buckets\" \"all\" {\n  project_ref = \"abcdefghijklmnopqrst\"\n}\n~~~\n",
             "description_kind": "markdown"
           }
         }
