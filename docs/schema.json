@@ -117,6 +117,33 @@
             "description_kind": "markdown"
           }
         },
+        "supabase_database_webhook": {
+          "version": 0,
+          "block": {
+            "attributes": {
+              "enabled": {
+                "type": "bool",
+                "description": "Whether database webhooks are enabled",
+                "description_kind": "markdown",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "description": "Resource identifier",
+                "description_kind": "markdown",
+                "computed": true
+              },
+              "project_ref": {
+                "type": "string",
+                "description": "Project reference",
+                "description_kind": "markdown",
+                "required": true
+              }
+            },
+            "description": "Database Webhook resource for enabling database webhooks (Beta feature)",
+            "description_kind": "markdown"
+          }
+        },
         "supabase_edge_function": {
           "version": 0,
           "block": {
@@ -208,7 +235,7 @@
           "version": 0,
           "block": {
             "attributes": {
-              "database_password": {
+              "db_pass": {
                 "type": "string",
                 "description": "Password for the project database",
                 "description_kind": "markdown",
@@ -1214,6 +1241,12 @@
                       "description": "SMTP username",
                       "description_kind": "markdown",
                       "optional": true
+                    },
+                    "uri_allow_list": {
+                      "type": "string",
+                      "description": "Comma-separated list of allowed redirect URIs",
+                      "description_kind": "markdown",
+                      "optional": true
                     }
                   },
                   "nesting_mode": "single"
@@ -1463,6 +1496,73 @@
             "description_kind": "markdown"
           }
         },
+        "supabase_sso_provider": {
+          "version": 0,
+          "block": {
+            "attributes": {
+              "attribute_mapping": {
+                "type": "string",
+                "description": "JSON string of attribute mapping",
+                "description_kind": "markdown",
+                "optional": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "Creation timestamp",
+                "description_kind": "markdown",
+                "computed": true
+              },
+              "domains": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "List of domains for this provider",
+                "description_kind": "markdown",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "description": "Provider ID",
+                "description_kind": "markdown",
+                "computed": true
+              },
+              "metadata_url": {
+                "type": "string",
+                "description": "SAML metadata URL",
+                "description_kind": "markdown",
+                "optional": true
+              },
+              "metadata_xml": {
+                "type": "string",
+                "description": "SAML metadata XML",
+                "description_kind": "markdown",
+                "optional": true,
+                "sensitive": true
+              },
+              "project_ref": {
+                "type": "string",
+                "description": "Project reference",
+                "description_kind": "markdown",
+                "required": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Provider type (saml)",
+                "description_kind": "markdown",
+                "required": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "Last update timestamp",
+                "description_kind": "markdown",
+                "computed": true
+              }
+            },
+            "description": "Supabase SSO Provider resource",
+            "description_kind": "markdown"
+          }
+        },
         "supabase_storage_bucket": {
           "version": 0,
           "block": {
@@ -1624,6 +1724,64 @@
               }
             },
             "description": "Pooler data source",
+            "description_kind": "markdown"
+          }
+        },
+        "supabase_sso_providers": {
+          "version": 0,
+          "block": {
+            "attributes": {
+              "project_ref": {
+                "type": "string",
+                "description": "Project reference",
+                "description_kind": "markdown",
+                "required": true
+              },
+              "providers": {
+                "nested_type": {
+                  "attributes": {
+                    "created_at": {
+                      "type": "string",
+                      "description": "Creation timestamp",
+                      "description_kind": "markdown",
+                      "computed": true
+                    },
+                    "domains": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "List of domains for this provider",
+                      "description_kind": "markdown",
+                      "computed": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "description": "Provider ID",
+                      "description_kind": "markdown",
+                      "computed": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Provider type",
+                      "description_kind": "markdown",
+                      "computed": true
+                    },
+                    "updated_at": {
+                      "type": "string",
+                      "description": "Last update timestamp",
+                      "description_kind": "markdown",
+                      "computed": true
+                    }
+                  },
+                  "nesting_mode": "list"
+                },
+                "description": "List of SSO providers",
+                "description_kind": "markdown",
+                "computed": true
+              }
+            },
+            "description": "Retrieve a list of SSO providers for a Supabase project",
             "description_kind": "markdown"
           }
         },
