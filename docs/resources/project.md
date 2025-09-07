@@ -16,13 +16,13 @@ Project resource
 resource "supabase_project" "test" {
   organization_id   = "continued-brown-smelt"
   name              = "foo"
-  database_password = "bar"
+  db_pass           = "bar"
   region            = "us-east-1"
   instance_size     = "micro"
 
   lifecycle {
     ignore_changes = [
-      database_password,
+      db_pass,
       instance_size,
     ]
   }
@@ -34,7 +34,7 @@ resource "supabase_project" "test" {
 
 ### Required
 
-- `database_password` (String, Sensitive) Password for the project database
+- `db_pass` (String, Sensitive) Password for the project database
 - `name` (String) Name of the project
 - `organization_id` (String) Reference to the organization
 - `region` (String) Region where the project is located

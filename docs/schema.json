@@ -1466,8 +1466,18 @@
                       "nested_type": {
                         "attributes": {
                           "image_transformation": {
-                            "type": "bool",
-                            "description": "Enable image transformation features",
+                            "nested_type": {
+                              "attributes": {
+                                "enabled": {
+                                  "type": "bool",
+                                  "description": "Enable image transformation features",
+                                  "description_kind": "markdown",
+                                  "optional": true
+                                }
+                              },
+                              "nesting_mode": "single"
+                            },
+                            "description": "Image transformation feature configuration",
                             "description_kind": "markdown",
                             "optional": true
                           }

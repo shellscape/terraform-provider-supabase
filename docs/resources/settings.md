@@ -16,29 +16,47 @@ Settings resource
 resource "supabase_settings" "production" {
   project_ref = "mayuaycdtijbctgqbycg"
 
-  database = jsonencode({
+  database = {
     statement_timeout = "10s"
-  })
+  }
 
-  network = jsonencode({
-    restrictions = [
-      "0.0.0.0/0",
-      "::/0"
-    ]
-  })
+  network = {
+    db_allowed_cidrs    = ["0.0.0.0/0"]
+    db_allowed_cidrs_v6 = ["::/0"]
+  }
 
-  api = jsonencode({
+  api = {
     db_schema            = "public,storage,graphql_public"
     db_extra_search_path = "public,extensions"
     max_rows             = 1000
-  })
+  }
 
-  auth = jsonencode({
+  auth = {
     site_url             = "http://localhost:3000"
     mailer_otp_exp       = 3600
     mfa_phone_otp_length = 6
     sms_otp_length       = 6
-  })
+
+    # GitHub OAuth configuration example
+    external_github = {
+      enabled   = true
+      client_id = "your_github_client_id"
+      secret    = "your_github_client_secret"
+    }
+  }
+
+  storage = {
+    file_size_limit = 52428800  # 50MB in bytes
+    features = {
+      image_transformation = {
+        enabled = true  # Enable image transformation features
+      }
+    }
+  }
+
+  pooler = {
+    default_pool_size = 20
+  }
 }
 ```
 
@@ -51,13 +69,378 @@ resource "supabase_settings" "production" {
 
 ### Optional
 
-- `api` (String) API settings as [serialised JSON](https://api.supabase.com/api/v1#/services/updatePostgRESTConfig)
-- `auth` (String) Auth settings as [serialised JSON](https://api.supabase.com/api/v1#/projects%20config/updateV1AuthConfig)
-- `database` (String) Database settings as [serialised JSON](https://api.supabase.com/api/v1#/projects%20config/updateConfig)
-- `network` (String) Network settings as serialised JSON
-- `pooler` (String) Pooler settings as serialised JSON
-- `storage` (String) Storage settings as serialised JSON
+- `api` (Attributes) API settings as [structured configuration](https://api.supabase.com/api/v1#/v1-update-postgrest-service-config) (see [below for nested schema](#nestedatt--api))
+- `auth` (Attributes) Auth settings as [structured configuration](https://api.supabase.com/api/v1#/v1-update-auth-service-config) (see [below for nested schema](#nestedatt--auth))
+- `database` (Attributes) Database settings as [structured configuration](https://api.supabase.com/api/v1#/v1-update-postgres-config) (see [below for nested schema](#nestedatt--database))
+- `network` (Attributes) Network restrictions settings (see [below for nested schema](#nestedatt--network))
+- `pooler` (Attributes) Connection pooler settings (see [below for nested schema](#nestedatt--pooler))
+- `storage` (Attributes) Storage configuration settings (see [below for nested schema](#nestedatt--storage))
 
 ### Read-Only
 
 - `id` (String) Project identifier
+
+<a id="nestedatt--api"></a>
+### Nested Schema for `api`
+
+Optional:
+
+- `db_extra_search_path` (String) Extra search path for database schemas
+- `db_pool` (Number) Database connection pool size
+- `db_schema` (String) Database schemas to expose via PostgREST
+- `max_rows` (Number) Maximum number of rows returned in a single request
+
+
+<a id="nestedatt--auth"></a>
+### Nested Schema for `auth`
+
+Optional:
+
+- `api_max_request_duration` (Number) Maximum request duration for auth API in seconds
+- `db_max_pool_size` (Number) Maximum database connection pool size for auth service
+- `disable_signup` (Boolean) Disable new user signups
+- `external_anonymous_users_enabled` (Boolean) Enable anonymous users for external authentication
+- `external_apple` (Attributes) Apple OAuth provider configuration (see [below for nested schema](#nestedatt--auth--external_apple))
+- `external_azure` (Attributes) Azure OAuth provider configuration (see [below for nested schema](#nestedatt--auth--external_azure))
+- `external_bitbucket` (Attributes) Bitbucket OAuth provider configuration (see [below for nested schema](#nestedatt--auth--external_bitbucket))
+- `external_discord` (Attributes) Discord OAuth provider configuration (see [below for nested schema](#nestedatt--auth--external_discord))
+- `external_email_enabled` (Boolean) Enable email/password authentication
+- `external_facebook` (Attributes) Facebook OAuth provider configuration (see [below for nested schema](#nestedatt--auth--external_facebook))
+- `external_figma` (Attributes) Figma OAuth provider configuration (see [below for nested schema](#nestedatt--auth--external_figma))
+- `external_github` (Attributes) GitHub OAuth provider configuration (see [below for nested schema](#nestedatt--auth--external_github))
+- `external_gitlab` (Attributes) GitLab OAuth provider configuration (see [below for nested schema](#nestedatt--auth--external_gitlab))
+- `external_google` (Attributes) Google OAuth provider configuration (see [below for nested schema](#nestedatt--auth--external_google))
+- `external_kakao` (Attributes) Kakao OAuth provider configuration (see [below for nested schema](#nestedatt--auth--external_kakao))
+- `external_keycloak` (Attributes) Keycloak OAuth provider configuration (see [below for nested schema](#nestedatt--auth--external_keycloak))
+- `external_linkedin_oidc` (Attributes) LinkedIn OIDC OAuth provider configuration (see [below for nested schema](#nestedatt--auth--external_linkedin_oidc))
+- `external_notion` (Attributes) Notion OAuth provider configuration (see [below for nested schema](#nestedatt--auth--external_notion))
+- `external_slack` (Attributes) Slack OAuth provider configuration (see [below for nested schema](#nestedatt--auth--external_slack))
+- `external_slack_oidc` (Attributes) Slack OIDC OAuth provider configuration (see [below for nested schema](#nestedatt--auth--external_slack_oidc))
+- `external_spotify` (Attributes) Spotify OAuth provider configuration (see [below for nested schema](#nestedatt--auth--external_spotify))
+- `external_twitch` (Attributes) Twitch OAuth provider configuration (see [below for nested schema](#nestedatt--auth--external_twitch))
+- `external_twitter` (Attributes) Twitter OAuth provider configuration (see [below for nested schema](#nestedatt--auth--external_twitter))
+- `external_workos` (Attributes) WorkOS OAuth provider configuration (see [below for nested schema](#nestedatt--auth--external_workos))
+- `external_zoom` (Attributes) Zoom OAuth provider configuration (see [below for nested schema](#nestedatt--auth--external_zoom))
+- `mailer_otp_exp` (Number) Email OTP expiration time in seconds
+- `mfa_phone_otp_length` (Number) Length of MFA phone OTP codes
+- `security_captcha_enabled` (Boolean) Enable CAPTCHA for authentication
+- `security_captcha_provider` (String) CAPTCHA provider
+- `security_captcha_secret` (String, Sensitive) CAPTCHA secret key
+- `site_url` (String) Site URL for redirects and email links
+- `sms_otp_length` (Number) Length of SMS OTP codes
+- `sms_provider` (String) SMS provider (twilio, messagebird, textlocal, vonage)
+- `smtp_host` (String) SMTP server hostname
+- `smtp_pass` (String, Sensitive) SMTP password
+- `smtp_port` (Number) SMTP server port
+- `smtp_user` (String) SMTP username
+- `uri_allow_list` (String) Comma-separated list of allowed redirect URIs
+
+<a id="nestedatt--auth--external_apple"></a>
+### Nested Schema for `auth.external_apple`
+
+Optional:
+
+- `additional_client_ids` (String) Additional Apple client IDs (comma-separated)
+- `client_id` (String) Apple OAuth client ID
+- `enabled` (Boolean) Enable Apple OAuth provider
+- `secret` (String, Sensitive) Apple OAuth client secret
+- `url` (String) Apple OAuth server URL (for self-hosted providers)
+
+
+<a id="nestedatt--auth--external_azure"></a>
+### Nested Schema for `auth.external_azure`
+
+Optional:
+
+- `additional_client_ids` (String) Additional Azure client IDs (comma-separated)
+- `client_id` (String) Azure OAuth client ID
+- `enabled` (Boolean) Enable Azure OAuth provider
+- `secret` (String, Sensitive) Azure OAuth client secret
+- `url` (String) Azure OAuth server URL (for self-hosted providers)
+
+
+<a id="nestedatt--auth--external_bitbucket"></a>
+### Nested Schema for `auth.external_bitbucket`
+
+Optional:
+
+- `additional_client_ids` (String) Additional Bitbucket client IDs (comma-separated)
+- `client_id` (String) Bitbucket OAuth client ID
+- `enabled` (Boolean) Enable Bitbucket OAuth provider
+- `secret` (String, Sensitive) Bitbucket OAuth client secret
+- `url` (String) Bitbucket OAuth server URL (for self-hosted providers)
+
+
+<a id="nestedatt--auth--external_discord"></a>
+### Nested Schema for `auth.external_discord`
+
+Optional:
+
+- `additional_client_ids` (String) Additional Discord client IDs (comma-separated)
+- `client_id` (String) Discord OAuth client ID
+- `enabled` (Boolean) Enable Discord OAuth provider
+- `secret` (String, Sensitive) Discord OAuth client secret
+- `url` (String) Discord OAuth server URL (for self-hosted providers)
+
+
+<a id="nestedatt--auth--external_facebook"></a>
+### Nested Schema for `auth.external_facebook`
+
+Optional:
+
+- `additional_client_ids` (String) Additional Facebook client IDs (comma-separated)
+- `client_id` (String) Facebook OAuth client ID
+- `enabled` (Boolean) Enable Facebook OAuth provider
+- `secret` (String, Sensitive) Facebook OAuth client secret
+- `url` (String) Facebook OAuth server URL (for self-hosted providers)
+
+
+<a id="nestedatt--auth--external_figma"></a>
+### Nested Schema for `auth.external_figma`
+
+Optional:
+
+- `additional_client_ids` (String) Additional Figma client IDs (comma-separated)
+- `client_id` (String) Figma OAuth client ID
+- `enabled` (Boolean) Enable Figma OAuth provider
+- `secret` (String, Sensitive) Figma OAuth client secret
+- `url` (String) Figma OAuth server URL (for self-hosted providers)
+
+
+<a id="nestedatt--auth--external_github"></a>
+### Nested Schema for `auth.external_github`
+
+Optional:
+
+- `additional_client_ids` (String) Additional GitHub client IDs (comma-separated)
+- `client_id` (String) GitHub OAuth client ID
+- `enabled` (Boolean) Enable GitHub OAuth provider
+- `secret` (String, Sensitive) GitHub OAuth client secret
+- `url` (String) GitHub OAuth server URL (for self-hosted providers)
+
+
+<a id="nestedatt--auth--external_gitlab"></a>
+### Nested Schema for `auth.external_gitlab`
+
+Optional:
+
+- `additional_client_ids` (String) Additional GitLab client IDs (comma-separated)
+- `client_id` (String) GitLab OAuth client ID
+- `enabled` (Boolean) Enable GitLab OAuth provider
+- `secret` (String, Sensitive) GitLab OAuth client secret
+- `url` (String) GitLab OAuth server URL (for self-hosted providers)
+
+
+<a id="nestedatt--auth--external_google"></a>
+### Nested Schema for `auth.external_google`
+
+Optional:
+
+- `additional_client_ids` (String) Additional Google client IDs (comma-separated)
+- `client_id` (String) Google OAuth client ID
+- `enabled` (Boolean) Enable Google OAuth provider
+- `secret` (String, Sensitive) Google OAuth client secret
+- `url` (String) Google OAuth server URL (for self-hosted providers)
+
+
+<a id="nestedatt--auth--external_kakao"></a>
+### Nested Schema for `auth.external_kakao`
+
+Optional:
+
+- `additional_client_ids` (String) Additional Kakao client IDs (comma-separated)
+- `client_id` (String) Kakao OAuth client ID
+- `enabled` (Boolean) Enable Kakao OAuth provider
+- `secret` (String, Sensitive) Kakao OAuth client secret
+- `url` (String) Kakao OAuth server URL (for self-hosted providers)
+
+
+<a id="nestedatt--auth--external_keycloak"></a>
+### Nested Schema for `auth.external_keycloak`
+
+Optional:
+
+- `additional_client_ids` (String) Additional Keycloak client IDs (comma-separated)
+- `client_id` (String) Keycloak OAuth client ID
+- `enabled` (Boolean) Enable Keycloak OAuth provider
+- `secret` (String, Sensitive) Keycloak OAuth client secret
+- `url` (String) Keycloak OAuth server URL (for self-hosted providers)
+
+
+<a id="nestedatt--auth--external_linkedin_oidc"></a>
+### Nested Schema for `auth.external_linkedin_oidc`
+
+Optional:
+
+- `additional_client_ids` (String) Additional LinkedIn OIDC client IDs (comma-separated)
+- `client_id` (String) LinkedIn OIDC OAuth client ID
+- `enabled` (Boolean) Enable LinkedIn OIDC OAuth provider
+- `secret` (String, Sensitive) LinkedIn OIDC OAuth client secret
+- `url` (String) LinkedIn OIDC OAuth server URL (for self-hosted providers)
+
+
+<a id="nestedatt--auth--external_notion"></a>
+### Nested Schema for `auth.external_notion`
+
+Optional:
+
+- `additional_client_ids` (String) Additional Notion client IDs (comma-separated)
+- `client_id` (String) Notion OAuth client ID
+- `enabled` (Boolean) Enable Notion OAuth provider
+- `secret` (String, Sensitive) Notion OAuth client secret
+- `url` (String) Notion OAuth server URL (for self-hosted providers)
+
+
+<a id="nestedatt--auth--external_slack"></a>
+### Nested Schema for `auth.external_slack`
+
+Optional:
+
+- `additional_client_ids` (String) Additional Slack client IDs (comma-separated)
+- `client_id` (String) Slack OAuth client ID
+- `enabled` (Boolean) Enable Slack OAuth provider
+- `secret` (String, Sensitive) Slack OAuth client secret
+- `url` (String) Slack OAuth server URL (for self-hosted providers)
+
+
+<a id="nestedatt--auth--external_slack_oidc"></a>
+### Nested Schema for `auth.external_slack_oidc`
+
+Optional:
+
+- `additional_client_ids` (String) Additional Slack OIDC client IDs (comma-separated)
+- `client_id` (String) Slack OIDC OAuth client ID
+- `enabled` (Boolean) Enable Slack OIDC OAuth provider
+- `secret` (String, Sensitive) Slack OIDC OAuth client secret
+- `url` (String) Slack OIDC OAuth server URL (for self-hosted providers)
+
+
+<a id="nestedatt--auth--external_spotify"></a>
+### Nested Schema for `auth.external_spotify`
+
+Optional:
+
+- `additional_client_ids` (String) Additional Spotify client IDs (comma-separated)
+- `client_id` (String) Spotify OAuth client ID
+- `enabled` (Boolean) Enable Spotify OAuth provider
+- `secret` (String, Sensitive) Spotify OAuth client secret
+- `url` (String) Spotify OAuth server URL (for self-hosted providers)
+
+
+<a id="nestedatt--auth--external_twitch"></a>
+### Nested Schema for `auth.external_twitch`
+
+Optional:
+
+- `additional_client_ids` (String) Additional Twitch client IDs (comma-separated)
+- `client_id` (String) Twitch OAuth client ID
+- `enabled` (Boolean) Enable Twitch OAuth provider
+- `secret` (String, Sensitive) Twitch OAuth client secret
+- `url` (String) Twitch OAuth server URL (for self-hosted providers)
+
+
+<a id="nestedatt--auth--external_twitter"></a>
+### Nested Schema for `auth.external_twitter`
+
+Optional:
+
+- `additional_client_ids` (String) Additional Twitter client IDs (comma-separated)
+- `client_id` (String) Twitter OAuth client ID
+- `enabled` (Boolean) Enable Twitter OAuth provider
+- `secret` (String, Sensitive) Twitter OAuth client secret
+- `url` (String) Twitter OAuth server URL (for self-hosted providers)
+
+
+<a id="nestedatt--auth--external_workos"></a>
+### Nested Schema for `auth.external_workos`
+
+Optional:
+
+- `additional_client_ids` (String) Additional WorkOS client IDs (comma-separated)
+- `client_id` (String) WorkOS OAuth client ID
+- `enabled` (Boolean) Enable WorkOS OAuth provider
+- `secret` (String, Sensitive) WorkOS OAuth client secret
+- `url` (String) WorkOS OAuth server URL (for self-hosted providers)
+
+
+<a id="nestedatt--auth--external_zoom"></a>
+### Nested Schema for `auth.external_zoom`
+
+Optional:
+
+- `additional_client_ids` (String) Additional Zoom client IDs (comma-separated)
+- `client_id` (String) Zoom OAuth client ID
+- `enabled` (Boolean) Enable Zoom OAuth provider
+- `secret` (String, Sensitive) Zoom OAuth client secret
+- `url` (String) Zoom OAuth server URL (for self-hosted providers)
+
+
+
+<a id="nestedatt--database"></a>
+### Nested Schema for `database`
+
+Optional:
+
+- `effective_cache_size` (String) Amount of memory available for disk caching by the OS and within the database itself
+- `logical_decoding_work_mem` (String) Memory used for logical decoding
+- `maintenance_work_mem` (String) Maximum amount of memory to be used by maintenance operations
+- `max_connections` (Number) Maximum number of concurrent connections to the database server
+- `max_locks_per_transaction` (Number) Maximum number of locks per transaction
+- `max_parallel_maintenance_workers` (Number) Maximum number of parallel maintenance workers
+- `max_parallel_workers` (Number) Maximum number of parallel worker processes
+- `max_parallel_workers_per_gather` (Number) Maximum number of parallel workers per Gather node
+- `max_replication_slots` (Number) Maximum number of replication slots
+- `max_slot_wal_keep_size` (String) Maximum size of WAL files that replication slots are allowed to retain
+- `max_standby_archive_delay` (String) Maximum delay before canceling queries when a hot standby server is processing archived WAL data
+- `max_standby_streaming_delay` (String) Maximum delay before canceling queries when a hot standby server is processing streamed WAL data
+- `max_wal_senders` (Number) Maximum number of WAL sender processes
+- `max_wal_size` (String) Maximum size to let the WAL grow during automatic checkpoints
+- `max_worker_processes` (Number) Maximum number of background worker processes
+- `restart_database` (Boolean) Whether to restart the database to apply configuration changes
+- `session_replication_role` (String) Controls firing of replication-related triggers and rules (origin, replica, local)
+- `shared_buffers` (String) Amount of memory the database server uses for shared memory buffers
+- `statement_timeout` (String) Maximum allowed duration of any statement
+- `track_commit_timestamp` (Boolean) Whether to track commit time stamps of transactions
+- `wal_keep_size` (String) Minimum size to retain in the pg_wal directory
+- `wal_sender_timeout` (String) Maximum time to wait for WAL replication
+- `work_mem` (String) Amount of memory to be used by internal sort operations and hash tables
+
+
+<a id="nestedatt--network"></a>
+### Nested Schema for `network`
+
+Optional:
+
+- `db_allowed_cidrs` (List of String) List of allowed IPv4 CIDR blocks for database access
+- `db_allowed_cidrs_v6` (List of String) List of allowed IPv6 CIDR blocks for database access
+
+
+<a id="nestedatt--pooler"></a>
+### Nested Schema for `pooler`
+
+Optional:
+
+- `default_pool_size` (Number) Default connection pool size
+
+
+<a id="nestedatt--storage"></a>
+### Nested Schema for `storage`
+
+Optional:
+
+- `features` (Attributes) Storage feature flags (see [below for nested schema](#nestedatt--storage--features))
+- `file_size_limit` (Number) Maximum file size limit in bytes
+
+<a id="nestedatt--storage--features"></a>
+### Nested Schema for `storage.features`
+
+Optional:
+
+- `image_transformation` (Attributes) Image transformation feature configuration (see [below for nested schema](#nestedatt--storage--features--image_transformation))
+
+<a id="nestedatt--storage--features--image_transformation"></a>
+### Nested Schema for `storage.features.image_transformation`
+
+Optional:
+
+- `enabled` (Boolean) Enable image transformation features

@@ -284,7 +284,7 @@ func TestAccSettingsResource(t *testing.T) {
 					resource.TestCheckResourceAttr("supabase_settings.test", "auth.mfa_phone_otp_length", "6"),
 					resource.TestCheckResourceAttr("supabase_settings.test", "auth.sms_otp_length", "6"),
 					resource.TestCheckResourceAttr("supabase_settings.test", "storage.file_size_limit", "52428800"),
-					resource.TestCheckResourceAttr("supabase_settings.test", "storage.features.image_transformation", "true"),
+					resource.TestCheckResourceAttr("supabase_settings.test", "storage.features.image_transformation.enabled", "true"),
 					resource.TestCheckResourceAttr("supabase_settings.test", "pooler.default_pool_size", "20"),
 					resource.TestCheckResourceAttr("supabase_settings.test", "id", "mayuaycdtijbctgqbycg"),
 				),
@@ -304,7 +304,7 @@ func TestAccSettingsResource(t *testing.T) {
 					resource.TestCheckResourceAttr("supabase_settings.test", "auth.mfa_phone_otp_length", "8"),
 					resource.TestCheckResourceAttr("supabase_settings.test", "auth.sms_otp_length", "8"),
 					resource.TestCheckResourceAttr("supabase_settings.test", "storage.file_size_limit", "104857600"),
-					resource.TestCheckResourceAttr("supabase_settings.test", "storage.features.image_transformation", "false"),
+					resource.TestCheckResourceAttr("supabase_settings.test", "storage.features.image_transformation.enabled", "false"),
 					resource.TestCheckResourceAttr("supabase_settings.test", "pooler.default_pool_size", "40"),
 				),
 			},
@@ -361,7 +361,9 @@ resource "supabase_settings" "test" {
   storage = {
     file_size_limit = 52428800
     features = {
-      image_transformation = true
+      image_transformation = {
+        enabled = true
+      }
     }
   }
 
@@ -401,7 +403,9 @@ resource "supabase_settings" "test" {
   storage = {
     file_size_limit = 104857600
     features = {
-      image_transformation = false
+      image_transformation = {
+        enabled = false
+      }
     }
   }
 
@@ -427,6 +431,134 @@ resource "supabase_settings" "test" {
 
   network = {
     db_allowed_cidrs = ["10.0.0.0/8"]
+  }
+}
+`
+
+func TestAccSettingsResourceExternalGithub(t *testing.T) {
+	defer gock.OffAll()
+	gock.Observe(gock.DumpRequest)
+
+	// Create operations
+	gock.New("https://api.supabase.com").
+		Patch("/v1/projects/mayuaycdtijbctgqbycg/config/auth").
+		Reply(http.StatusOK).
+		JSON(api.AuthConfigResponse{
+			ExternalGithubEnabled:  Ptr(true),
+			ExternalGithubClientId: Ptr("github_client_id_123"),
+			MailerOtpExp:           3600,
+			MfaPhoneOtpLength:      6,
+			SmsOtpLength:           6,
+		})
+
+	// Read operations
+	gock.New("https://api.supabase.com").
+		Get("/v1/projects/mayuaycdtijbctgqbycg/config/auth").
+		Times(2).
+		Reply(http.StatusOK).
+		JSON(api.AuthConfigResponse{
+			ExternalGithubEnabled:  Ptr(true),
+			ExternalGithubClientId: Ptr("github_client_id_123"),
+			MailerOtpExp:           3600,
+			MfaPhoneOtpLength:      6,
+			SmsOtpLength:           6,
+		})
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSettingsResourceConfigExternalGithub,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("supabase_settings.test", "project_ref", "mayuaycdtijbctgqbycg"),
+					resource.TestCheckResourceAttr("supabase_settings.test", "auth.mailer_otp_exp", "3600"),
+					resource.TestCheckResourceAttr("supabase_settings.test", "auth.mfa_phone_otp_length", "6"),
+					resource.TestCheckResourceAttr("supabase_settings.test", "auth.sms_otp_length", "6"),
+					resource.TestCheckResourceAttr("supabase_settings.test", "auth.external_github.enabled", "true"),
+					resource.TestCheckResourceAttr("supabase_settings.test", "auth.external_github.client_id", "github_client_id_123"),
+					resource.TestCheckResourceAttr("supabase_settings.test", "auth.external_github.secret", "github_secret_456"),
+				),
+			},
+		},
+	})
+}
+
+const testAccSettingsResourceConfigExternalGithub = `
+resource "supabase_settings" "test" {
+  project_ref = "mayuaycdtijbctgqbycg"
+
+  auth = {
+    mailer_otp_exp = 3600
+    mfa_phone_otp_length = 6
+    sms_otp_length = 6
+    external_github = {
+      enabled = true
+      client_id = "github_client_id_123"
+      secret = "github_secret_456"
+    }
+  }
+}
+`
+
+func TestAccSettingsResourceImageTransformationEnabled(t *testing.T) {
+	defer gock.OffAll()
+	gock.Observe(gock.DumpRequest)
+
+	// Test that users can set the enabled property for image transformation
+	gock.New("https://api.supabase.com").
+		Patch("/v1/projects/mayuaycdtijbctgqbycg/config/storage").
+		Reply(http.StatusOK).
+		JSON(api.StorageConfigResponse{
+			FileSizeLimit: 52428800,
+			Features: api.StorageFeatures{
+				ImageTransformation: api.StorageFeatureImageTransformation{
+					Enabled: true,
+				},
+			},
+		})
+
+	// Read operations
+	gock.New("https://api.supabase.com").
+		Get("/v1/projects/mayuaycdtijbctgqbycg/config/storage").
+		Times(2).
+		Reply(http.StatusOK).
+		JSON(api.StorageConfigResponse{
+			FileSizeLimit: 52428800,
+			Features: api.StorageFeatures{
+				ImageTransformation: api.StorageFeatureImageTransformation{
+					Enabled: true,
+				},
+			},
+		})
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSettingsResourceConfigImageTransformation,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("supabase_settings.test", "project_ref", "mayuaycdtijbctgqbycg"),
+					resource.TestCheckResourceAttr("supabase_settings.test", "storage.file_size_limit", "52428800"),
+					resource.TestCheckResourceAttr("supabase_settings.test", "storage.features.image_transformation.enabled", "true"),
+				),
+			},
+		},
+	})
+}
+
+const testAccSettingsResourceConfigImageTransformation = `
+resource "supabase_settings" "test" {
+  project_ref = "mayuaycdtijbctgqbycg"
+
+  storage = {
+    file_size_limit = 52428800
+    features = {
+      image_transformation = {
+        enabled = true
+      }
+    }
   }
 }
 `

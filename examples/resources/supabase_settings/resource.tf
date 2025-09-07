@@ -1,27 +1,45 @@
 resource "supabase_settings" "production" {
   project_ref = "mayuaycdtijbctgqbycg"
 
-  database = jsonencode({
+  database = {
     statement_timeout = "10s"
-  })
+  }
 
-  network = jsonencode({
-    restrictions = [
-      "0.0.0.0/0",
-      "::/0"
-    ]
-  })
+  network = {
+    db_allowed_cidrs    = ["0.0.0.0/0"]
+    db_allowed_cidrs_v6 = ["::/0"]
+  }
 
-  api = jsonencode({
+  api = {
     db_schema            = "public,storage,graphql_public"
     db_extra_search_path = "public,extensions"
     max_rows             = 1000
-  })
+  }
 
-  auth = jsonencode({
+  auth = {
     site_url             = "http://localhost:3000"
     mailer_otp_exp       = 3600
     mfa_phone_otp_length = 6
     sms_otp_length       = 6
-  })
+
+    # GitHub OAuth configuration example
+    external_github = {
+      enabled   = true
+      client_id = "your_github_client_id"
+      secret    = "your_github_client_secret"
+    }
+  }
+
+  storage = {
+    file_size_limit = 52428800  # 50MB in bytes
+    features = {
+      image_transformation = {
+        enabled = true  # Enable image transformation features
+      }
+    }
+  }
+
+  pooler = {
+    default_pool_size = 20
+  }
 }

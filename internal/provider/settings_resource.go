@@ -91,7 +91,12 @@ type StorageConfig struct {
 
 // StorageFeatures represents storage feature flags
 type StorageFeatures struct {
-	ImageTransformation types.Bool `tfsdk:"image_transformation"`
+	ImageTransformation *StorageFeatureImageTransformation `tfsdk:"image_transformation"`
+}
+
+// StorageFeatureImageTransformation represents image transformation feature configuration
+type StorageFeatureImageTransformation struct {
+	Enabled types.Bool `tfsdk:"enabled"`
 }
 
 // AuthConfig represents authentication configuration
@@ -316,9 +321,15 @@ func (r *SettingsResource) Schema(ctx context.Context, req resource.SchemaReques
 						MarkdownDescription: "Storage feature flags",
 						Optional:            true,
 						Attributes: map[string]schema.Attribute{
-							"image_transformation": schema.BoolAttribute{
-								MarkdownDescription: "Enable image transformation features",
+							"image_transformation": schema.SingleNestedAttribute{
+								MarkdownDescription: "Image transformation feature configuration",
 								Optional:            true,
+								Attributes: map[string]schema.Attribute{
+									"enabled": schema.BoolAttribute{
+										MarkdownDescription: "Enable image transformation features",
+										Optional:            true,
+									},
+								},
 							},
 						},
 					},
@@ -1106,7 +1117,10 @@ func (r *SettingsResource) readStorageConfig(ctx context.Context, state *Setting
 	if state.Storage.Features == nil {
 		state.Storage.Features = &StorageFeatures{}
 	}
-	state.Storage.Features.ImageTransformation = types.BoolValue(resp.Features.ImageTransformation.Enabled)
+	if state.Storage.Features.ImageTransformation == nil {
+		state.Storage.Features.ImageTransformation = &StorageFeatureImageTransformation{}
+	}
+	state.Storage.Features.ImageTransformation.Enabled = types.BoolValue(resp.Features.ImageTransformation.Enabled)
 
 	return nil
 }
@@ -1119,10 +1133,10 @@ func (r *SettingsResource) updateStorageConfig(ctx context.Context, plan *Settin
 		body.FileSizeLimit = &val
 	}
 
-	if plan.Storage.Features != nil && !plan.Storage.Features.ImageTransformation.IsNull() {
+	if plan.Storage.Features != nil && plan.Storage.Features.ImageTransformation != nil && !plan.Storage.Features.ImageTransformation.Enabled.IsNull() {
 		body.Features = &api.StorageFeatures{
 			ImageTransformation: api.StorageFeatureImageTransformation{
-				Enabled: plan.Storage.Features.ImageTransformation.ValueBool(),
+				Enabled: plan.Storage.Features.ImageTransformation.Enabled.ValueBool(),
 			},
 		}
 	}
