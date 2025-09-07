@@ -1,0 +1,37 @@
+# Regenerates JSON schema whenever a PR is merged to main 
+name: Generate JSON
+
+on:
+  pull_request:
+    paths-ignore:
+      - 'README.md'
+
+# Needs write permissions to write the schema to the repo
+permissions:
+  contents: write
+
+jobs:
+  schema:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: 'go.mod'
+          cache: true
+      - run: make generate-json
+      - run: |
+          if [[ `git status --porcelain` ]]; then
+            echo "[bot] Schema changes detected, committing."
+            # git sha != sha1: https://git-scm.com/book/en/v2/Git-Internals-Git-Objects
+            sha=$(gh api -X GET repos/{owner}/{repo}/contents/$SCHEMA_FILE -F ref='${{ github.head_ref }}' --jq '.sha')
+            b64=$(cat $SCHEMA_FILE | base64)
+            gh api -X PUT repos/{owner}/{repo}/contents/$SCHEMA_FILE -F branch='${{ github.head_ref }}' \
+            -F content="$b64" -F sha="$sha" -F message='docs: update json schema file'
+          else
+            echo "[bot] No schema changes detected, nothing to commit."
+          fi
+        env:
+          SCHEMA_FILE: docs/schema.json
+          GH_TOKEN: ${{ github.token }}
