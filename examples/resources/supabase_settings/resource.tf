@@ -22,12 +22,15 @@ resource "supabase_settings" "production" {
     mfa_phone_otp_length = 6
     sms_otp_length       = 6
 
-    # GitHub OAuth configuration example
+    # GitHub OAuth configuration example (structured)
     external_github = {
       enabled   = true
       client_id = "your_github_client_id"
       secret    = "your_github_client_secret"
     }
+    
+    # OR use direct property (for CDKTF compatibility)
+    # external_github_client_id = "your_github_client_id"
   }
 
   storage = {
@@ -35,6 +38,9 @@ resource "supabase_settings" "production" {
     features = {
       image_transformation = {
         enabled = true  # Enable image transformation features
+      }
+      s3_protocol = {
+        enabled = true  # Enable S3 protocol compatibility
       }
     }
   }

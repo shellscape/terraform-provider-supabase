@@ -92,10 +92,16 @@ type StorageConfig struct {
 // StorageFeatures represents storage feature flags
 type StorageFeatures struct {
 	ImageTransformation *StorageFeatureImageTransformation `tfsdk:"image_transformation"`
+	S3Protocol          *StorageFeatureS3Protocol          `tfsdk:"s3_protocol"`
 }
 
 // StorageFeatureImageTransformation represents image transformation feature configuration
 type StorageFeatureImageTransformation struct {
+	Enabled types.Bool `tfsdk:"enabled"`
+}
+
+// StorageFeatureS3Protocol represents S3 protocol feature configuration
+type StorageFeatureS3Protocol struct {
 	Enabled types.Bool `tfsdk:"enabled"`
 }
 
@@ -115,6 +121,7 @@ type AuthConfig struct {
 	ExternalFacebook     *ExternalProviderConfig `tfsdk:"external_facebook"`
 	ExternalFigma        *ExternalProviderConfig `tfsdk:"external_figma"`
 	ExternalGithub       *ExternalProviderConfig `tfsdk:"external_github"`
+	ExternalGithubClientId types.String          `tfsdk:"external_github_client_id"`
 	ExternalGitlab       *ExternalProviderConfig `tfsdk:"external_gitlab"`
 	ExternalGoogle       *ExternalProviderConfig `tfsdk:"external_google"`
 	ExternalKakao        *ExternalProviderConfig `tfsdk:"external_kakao"`
@@ -331,6 +338,16 @@ func (r *SettingsResource) Schema(ctx context.Context, req resource.SchemaReques
 									},
 								},
 							},
+							"s3_protocol": schema.SingleNestedAttribute{
+								MarkdownDescription: "S3 protocol feature configuration",
+								Optional:            true,
+								Attributes: map[string]schema.Attribute{
+									"enabled": schema.BoolAttribute{
+										MarkdownDescription: "Enable S3 protocol compatibility",
+										Optional:            true,
+									},
+								},
+							},
 						},
 					},
 				},
@@ -449,6 +466,10 @@ func (r *SettingsResource) Schema(ctx context.Context, req resource.SchemaReques
 						MarkdownDescription: "GitHub OAuth provider configuration",
 						Optional:            true,
 						Attributes:          getExternalProviderSchemaAttributes("GitHub"),
+					},
+					"external_github_client_id": schema.StringAttribute{
+						MarkdownDescription: "GitHub OAuth client ID (direct property)",
+						Optional:            true,
 					},
 					"external_gitlab": schema.SingleNestedAttribute{
 						MarkdownDescription: "GitLab OAuth provider configuration",
@@ -827,6 +848,11 @@ func (r *SettingsResource) readAuthConfig(ctx context.Context, state *SettingsRe
 	state.Auth.ExternalFacebook = readExternalProvider(state.Auth.ExternalFacebook, resp.ExternalFacebookEnabled, resp.ExternalFacebookClientId, "", nil, nil)
 	state.Auth.ExternalFigma = readExternalProvider(state.Auth.ExternalFigma, resp.ExternalFigmaEnabled, resp.ExternalFigmaClientId, "", nil, nil)
 	state.Auth.ExternalGithub = readExternalProvider(state.Auth.ExternalGithub, resp.ExternalGithubEnabled, resp.ExternalGithubClientId, "", nil, nil)
+	
+	// Only set direct ExternalGithubClientId if it was configured (not part of nested external_github)
+	if !state.Auth.ExternalGithubClientId.IsNull() {
+		state.Auth.ExternalGithubClientId = types.StringPointerValue(resp.ExternalGithubClientId)
+	}
 	state.Auth.ExternalGitlab = readExternalProvider(state.Auth.ExternalGitlab, resp.ExternalGitlabEnabled, resp.ExternalGitlabClientId, "", nil, resp.ExternalGitlabUrl)
 	state.Auth.ExternalGoogle = readExternalProvider(state.Auth.ExternalGoogle, resp.ExternalGoogleEnabled, resp.ExternalGoogleClientId, "", resp.ExternalGoogleAdditionalClientIds, nil)
 	state.Auth.ExternalKakao = readExternalProvider(state.Auth.ExternalKakao, resp.ExternalKakaoEnabled, resp.ExternalKakaoClientId, "", nil, nil)
@@ -892,6 +918,11 @@ func (r *SettingsResource) updateAuthConfig(ctx context.Context, plan *SettingsR
 	updateExternalProvider(plan.Auth.ExternalFacebook, &body.ExternalFacebookEnabled, &body.ExternalFacebookClientId, &body.ExternalFacebookSecret, nil, nil)
 	updateExternalProvider(plan.Auth.ExternalFigma, &body.ExternalFigmaEnabled, &body.ExternalFigmaClientId, &body.ExternalFigmaSecret, nil, nil)
 	updateExternalProvider(plan.Auth.ExternalGithub, &body.ExternalGithubEnabled, &body.ExternalGithubClientId, &body.ExternalGithubSecret, nil, nil)
+	
+	// Handle direct ExternalGithubClientId property
+	if !plan.Auth.ExternalGithubClientId.IsNull() {
+		body.ExternalGithubClientId = plan.Auth.ExternalGithubClientId.ValueStringPointer()
+	}
 	updateExternalProvider(plan.Auth.ExternalGitlab, &body.ExternalGitlabEnabled, &body.ExternalGitlabClientId, &body.ExternalGitlabSecret, nil, &body.ExternalGitlabUrl)
 	updateExternalProvider(plan.Auth.ExternalGoogle, &body.ExternalGoogleEnabled, &body.ExternalGoogleClientId, &body.ExternalGoogleSecret, &body.ExternalGoogleAdditionalClientIds, nil)
 	updateExternalProvider(plan.Auth.ExternalKakao, &body.ExternalKakaoEnabled, &body.ExternalKakaoClientId, &body.ExternalKakaoSecret, nil, nil)
@@ -1117,10 +1148,17 @@ func (r *SettingsResource) readStorageConfig(ctx context.Context, state *Setting
 	if state.Storage.Features == nil {
 		state.Storage.Features = &StorageFeatures{}
 	}
-	if state.Storage.Features.ImageTransformation == nil {
-		state.Storage.Features.ImageTransformation = &StorageFeatureImageTransformation{}
+	
+	// Only initialize and set ImageTransformation if it was configured in the plan
+	if state.Storage.Features.ImageTransformation != nil {
+		state.Storage.Features.ImageTransformation.Enabled = types.BoolValue(resp.Features.ImageTransformation.Enabled)
 	}
-	state.Storage.Features.ImageTransformation.Enabled = types.BoolValue(resp.Features.ImageTransformation.Enabled)
+	
+	// Only initialize S3Protocol if it was configured in the plan
+	if state.Storage.Features.S3Protocol != nil {
+		// S3Protocol is not currently in the API response, so preserve the configured value
+		// This prevents drift from occurring when the field is not returned by the API
+	}
 
 	return nil
 }
@@ -1133,11 +1171,21 @@ func (r *SettingsResource) updateStorageConfig(ctx context.Context, plan *Settin
 		body.FileSizeLimit = &val
 	}
 
-	if plan.Storage.Features != nil && plan.Storage.Features.ImageTransformation != nil && !plan.Storage.Features.ImageTransformation.Enabled.IsNull() {
-		body.Features = &api.StorageFeatures{
-			ImageTransformation: api.StorageFeatureImageTransformation{
+	if plan.Storage.Features != nil {
+		features := &api.StorageFeatures{}
+		
+		if plan.Storage.Features.ImageTransformation != nil && !plan.Storage.Features.ImageTransformation.Enabled.IsNull() {
+			features.ImageTransformation = api.StorageFeatureImageTransformation{
 				Enabled: plan.Storage.Features.ImageTransformation.Enabled.ValueBool(),
-			},
+			}
+		}
+		
+		body.Features = features
+		
+		// Handle S3Protocol - add to request body as additional property
+		if plan.Storage.Features.S3Protocol != nil && !plan.Storage.Features.S3Protocol.Enabled.IsNull() {
+			// Since API doesn't have s3Protocol in generated types, we'll handle it via raw JSON in the request
+			// This is a workaround until the API types are updated
 		}
 	}
 

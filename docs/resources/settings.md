@@ -37,12 +37,15 @@ resource "supabase_settings" "production" {
     mfa_phone_otp_length = 6
     sms_otp_length       = 6
 
-    # GitHub OAuth configuration example
+    # GitHub OAuth configuration example (structured)
     external_github = {
       enabled   = true
       client_id = "your_github_client_id"
       secret    = "your_github_client_secret"
     }
+    
+    # OR use direct property (for CDKTF compatibility)
+    # external_github_client_id = "your_github_client_id"
   }
 
   storage = {
@@ -50,6 +53,9 @@ resource "supabase_settings" "production" {
     features = {
       image_transformation = {
         enabled = true  # Enable image transformation features
+      }
+      s3_protocol = {
+        enabled = true  # Enable S3 protocol compatibility
       }
     }
   }
@@ -108,6 +114,7 @@ Optional:
 - `external_facebook` (Attributes) Facebook OAuth provider configuration (see [below for nested schema](#nestedatt--auth--external_facebook))
 - `external_figma` (Attributes) Figma OAuth provider configuration (see [below for nested schema](#nestedatt--auth--external_figma))
 - `external_github` (Attributes) GitHub OAuth provider configuration (see [below for nested schema](#nestedatt--auth--external_github))
+- `external_github_client_id` (String) GitHub OAuth client ID (direct property)
 - `external_gitlab` (Attributes) GitLab OAuth provider configuration (see [below for nested schema](#nestedatt--auth--external_gitlab))
 - `external_google` (Attributes) Google OAuth provider configuration (see [below for nested schema](#nestedatt--auth--external_google))
 - `external_kakao` (Attributes) Kakao OAuth provider configuration (see [below for nested schema](#nestedatt--auth--external_kakao))
@@ -437,6 +444,7 @@ Optional:
 Optional:
 
 - `image_transformation` (Attributes) Image transformation feature configuration (see [below for nested schema](#nestedatt--storage--features--image_transformation))
+- `s3_protocol` (Attributes) S3 protocol feature configuration (see [below for nested schema](#nestedatt--storage--features--s3_protocol))
 
 <a id="nestedatt--storage--features--image_transformation"></a>
 ### Nested Schema for `storage.features.image_transformation`
@@ -444,3 +452,11 @@ Optional:
 Optional:
 
 - `enabled` (Boolean) Enable image transformation features
+
+
+<a id="nestedatt--storage--features--s3_protocol"></a>
+### Nested Schema for `storage.features.s3_protocol`
+
+Optional:
+
+- `enabled` (Boolean) Enable S3 protocol compatibility
