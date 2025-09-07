@@ -36,7 +36,7 @@ type ProjectResource struct {
 type ProjectResourceModel struct {
 	OrganizationId   types.String `tfsdk:"organization_id"`
 	Name             types.String `tfsdk:"name"`
-	DatabasePassword types.String `tfsdk:"database_password"`
+	DbPass           types.String `tfsdk:"db_pass"`
 	Region           types.String `tfsdk:"region"`
 	InstanceSize     types.String `tfsdk:"instance_size"`
 	Id               types.String `tfsdk:"id"`
@@ -59,7 +59,7 @@ func (r *ProjectResource) Schema(ctx context.Context, req resource.SchemaRequest
 				MarkdownDescription: "Name of the project",
 				Required:            true,
 			},
-			"database_password": schema.StringAttribute{
+			"db_pass": schema.StringAttribute{
 				MarkdownDescription: "Password for the project database",
 				Required:            true,
 				Sensitive:           true,
@@ -150,9 +150,11 @@ func (r *ProjectResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
-	// TODO: allow api to update project resource
-	msg := fmt.Sprintf("Update is not supported for project resource: %s", data.Id.ValueString())
-	resp.Diagnostics.Append(diag.NewErrorDiagnostic("Client Error", msg))
+	// Note: The Supabase Management API does not provide endpoints to update core project properties
+	// (name, region, db_pass, etc.) after creation. These properties are immutable.
+	// Available project operations are limited to: Create, Read, Delete, Pause, and Restore.
+	msg := fmt.Sprintf("Project properties are immutable and cannot be updated via the Supabase Management API. Project: %s", data.Id.ValueString())
+	resp.Diagnostics.Append(diag.NewErrorDiagnostic("Update Not Supported", msg))
 }
 
 func (r *ProjectResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
@@ -183,7 +185,7 @@ func createProject(ctx context.Context, data *ProjectResourceModel, client *api.
 	body := api.V1CreateProjectBodyDto{
 		OrganizationId: data.OrganizationId.ValueString(),
 		Name:           data.Name.ValueString(),
-		DbPass:         data.DatabasePassword.ValueString(),
+		DbPass:         data.DbPass.ValueString(),
 		Region:         api.V1CreateProjectBodyDtoRegion(data.Region.ValueString()),
 	}
 	if !data.InstanceSize.IsNull() {

@@ -85,8 +85,8 @@ type NetworkConfig struct {
 
 // StorageConfig represents storage configuration
 type StorageConfig struct {
-	FileSizeLimit types.Int64         `tfsdk:"file_size_limit"`
-	Features      *StorageFeatures    `tfsdk:"features"`
+	FileSizeLimit types.Int64      `tfsdk:"file_size_limit"`
+	Features      *StorageFeatures `tfsdk:"features"`
 }
 
 // StorageFeatures represents storage feature flags
@@ -96,40 +96,40 @@ type StorageFeatures struct {
 
 // AuthConfig represents authentication configuration
 type AuthConfig struct {
-	ApiMaxRequestDuration         types.Int64  `tfsdk:"api_max_request_duration"`
-	DbMaxPoolSize                 types.Int64  `tfsdk:"db_max_pool_size"`
-	DisableSignup                 types.Bool   `tfsdk:"disable_signup"`
-	ExternalAnonymousUsersEnabled types.Bool   `tfsdk:"external_anonymous_users_enabled"`
-	ExternalEmailEnabled          types.Bool   `tfsdk:"external_email_enabled"`
-	
+	ApiMaxRequestDuration         types.Int64 `tfsdk:"api_max_request_duration"`
+	DbMaxPoolSize                 types.Int64 `tfsdk:"db_max_pool_size"`
+	DisableSignup                 types.Bool  `tfsdk:"disable_signup"`
+	ExternalAnonymousUsersEnabled types.Bool  `tfsdk:"external_anonymous_users_enabled"`
+	ExternalEmailEnabled          types.Bool  `tfsdk:"external_email_enabled"`
+
 	// External providers
-	ExternalApple     *ExternalProviderConfig `tfsdk:"external_apple"`
-	ExternalAzure     *ExternalProviderConfig `tfsdk:"external_azure"`
-	ExternalBitbucket *ExternalProviderConfig `tfsdk:"external_bitbucket"`
-	ExternalDiscord   *ExternalProviderConfig `tfsdk:"external_discord"`
-	ExternalFacebook  *ExternalProviderConfig `tfsdk:"external_facebook"`
-	ExternalFigma     *ExternalProviderConfig `tfsdk:"external_figma"`
-	ExternalGithub    *ExternalProviderConfig `tfsdk:"external_github"`
-	ExternalGitlab    *ExternalProviderConfig `tfsdk:"external_gitlab"`
-	ExternalGoogle    *ExternalProviderConfig `tfsdk:"external_google"`
-	ExternalKakao     *ExternalProviderConfig `tfsdk:"external_kakao"`
-	ExternalKeycloak  *ExternalProviderConfig `tfsdk:"external_keycloak"`
+	ExternalApple        *ExternalProviderConfig `tfsdk:"external_apple"`
+	ExternalAzure        *ExternalProviderConfig `tfsdk:"external_azure"`
+	ExternalBitbucket    *ExternalProviderConfig `tfsdk:"external_bitbucket"`
+	ExternalDiscord      *ExternalProviderConfig `tfsdk:"external_discord"`
+	ExternalFacebook     *ExternalProviderConfig `tfsdk:"external_facebook"`
+	ExternalFigma        *ExternalProviderConfig `tfsdk:"external_figma"`
+	ExternalGithub       *ExternalProviderConfig `tfsdk:"external_github"`
+	ExternalGitlab       *ExternalProviderConfig `tfsdk:"external_gitlab"`
+	ExternalGoogle       *ExternalProviderConfig `tfsdk:"external_google"`
+	ExternalKakao        *ExternalProviderConfig `tfsdk:"external_kakao"`
+	ExternalKeycloak     *ExternalProviderConfig `tfsdk:"external_keycloak"`
 	ExternalLinkedinOidc *ExternalProviderConfig `tfsdk:"external_linkedin_oidc"`
-	ExternalNotion    *ExternalProviderConfig `tfsdk:"external_notion"`
-	ExternalSlack     *ExternalProviderConfig `tfsdk:"external_slack"`
-	ExternalSlackOidc *ExternalProviderConfig `tfsdk:"external_slack_oidc"`
-	ExternalSpotify   *ExternalProviderConfig `tfsdk:"external_spotify"`
-	ExternalTwitch    *ExternalProviderConfig `tfsdk:"external_twitch"`
-	ExternalTwitter   *ExternalProviderConfig `tfsdk:"external_twitter"`
-	ExternalWorkos    *ExternalProviderConfig `tfsdk:"external_workos"`
-	ExternalZoom      *ExternalProviderConfig `tfsdk:"external_zoom"`
+	ExternalNotion       *ExternalProviderConfig `tfsdk:"external_notion"`
+	ExternalSlack        *ExternalProviderConfig `tfsdk:"external_slack"`
+	ExternalSlackOidc    *ExternalProviderConfig `tfsdk:"external_slack_oidc"`
+	ExternalSpotify      *ExternalProviderConfig `tfsdk:"external_spotify"`
+	ExternalTwitch       *ExternalProviderConfig `tfsdk:"external_twitch"`
+	ExternalTwitter      *ExternalProviderConfig `tfsdk:"external_twitter"`
+	ExternalWorkos       *ExternalProviderConfig `tfsdk:"external_workos"`
+	ExternalZoom         *ExternalProviderConfig `tfsdk:"external_zoom"`
 
 	// SMS settings
-	SmsProvider types.String `tfsdk:"sms_provider"`
-	SmsOtpLength types.Int64 `tfsdk:"sms_otp_length"`
-	
+	SmsProvider  types.String `tfsdk:"sms_provider"`
+	SmsOtpLength types.Int64  `tfsdk:"sms_otp_length"`
+
 	// Email settings
-	MailerOtpExp types.Int64 `tfsdk:"mailer_otp_exp"`
+	MailerOtpExp types.Int64  `tfsdk:"mailer_otp_exp"`
 	SmtpHost     types.String `tfsdk:"smtp_host"`
 	SmtpPort     types.Int64  `tfsdk:"smtp_port"`
 	SmtpUser     types.String `tfsdk:"smtp_user"`
@@ -143,19 +143,21 @@ type AuthConfig struct {
 	// Site settings
 	SiteUrl types.String `tfsdk:"site_url"`
 
+	// URI settings
+	UriAllowList types.String `tfsdk:"uri_allow_list"`
+
 	// MFA settings
 	MfaPhoneOtpLength types.Int64 `tfsdk:"mfa_phone_otp_length"`
 }
 
 // ExternalProviderConfig represents external OAuth provider configuration
 type ExternalProviderConfig struct {
-	Enabled              types.Bool   `tfsdk:"enabled"`
-	ClientId             types.String `tfsdk:"client_id"`
-	Secret               types.String `tfsdk:"secret"`
-	Url                  types.String `tfsdk:"url"`
-	AdditionalClientIds  types.String `tfsdk:"additional_client_ids"`
+	Enabled             types.Bool   `tfsdk:"enabled"`
+	ClientId            types.String `tfsdk:"client_id"`
+	Secret              types.String `tfsdk:"secret"`
+	Url                 types.String `tfsdk:"url"`
+	AdditionalClientIds types.String `tfsdk:"additional_client_ids"`
 }
-
 
 // ApiConfig represents PostgREST API configuration
 type ApiConfig struct {
@@ -392,111 +394,115 @@ func (r *SettingsResource) Schema(ctx context.Context, req resource.SchemaReques
 						MarkdownDescription: "Site URL for redirects and email links",
 						Optional:            true,
 					},
+					"uri_allow_list": schema.StringAttribute{
+						MarkdownDescription: "Comma-separated list of allowed redirect URIs",
+						Optional:            true,
+					},
 					"mfa_phone_otp_length": schema.Int64Attribute{
 						MarkdownDescription: "Length of MFA phone OTP codes",
 						Optional:            true,
 					},
-					
+
 					// External OAuth Providers
 					"external_apple": schema.SingleNestedAttribute{
 						MarkdownDescription: "Apple OAuth provider configuration",
 						Optional:            true,
-						Attributes: getExternalProviderSchemaAttributes("Apple"),
+						Attributes:          getExternalProviderSchemaAttributes("Apple"),
 					},
 					"external_azure": schema.SingleNestedAttribute{
-						MarkdownDescription: "Azure OAuth provider configuration", 
+						MarkdownDescription: "Azure OAuth provider configuration",
 						Optional:            true,
-						Attributes: getExternalProviderSchemaAttributes("Azure"),
+						Attributes:          getExternalProviderSchemaAttributes("Azure"),
 					},
 					"external_bitbucket": schema.SingleNestedAttribute{
 						MarkdownDescription: "Bitbucket OAuth provider configuration",
 						Optional:            true,
-						Attributes: getExternalProviderSchemaAttributes("Bitbucket"),
+						Attributes:          getExternalProviderSchemaAttributes("Bitbucket"),
 					},
 					"external_discord": schema.SingleNestedAttribute{
 						MarkdownDescription: "Discord OAuth provider configuration",
 						Optional:            true,
-						Attributes: getExternalProviderSchemaAttributes("Discord"),
+						Attributes:          getExternalProviderSchemaAttributes("Discord"),
 					},
 					"external_facebook": schema.SingleNestedAttribute{
 						MarkdownDescription: "Facebook OAuth provider configuration",
 						Optional:            true,
-						Attributes: getExternalProviderSchemaAttributes("Facebook"),
+						Attributes:          getExternalProviderSchemaAttributes("Facebook"),
 					},
 					"external_figma": schema.SingleNestedAttribute{
 						MarkdownDescription: "Figma OAuth provider configuration",
 						Optional:            true,
-						Attributes: getExternalProviderSchemaAttributes("Figma"),
+						Attributes:          getExternalProviderSchemaAttributes("Figma"),
 					},
 					"external_github": schema.SingleNestedAttribute{
 						MarkdownDescription: "GitHub OAuth provider configuration",
 						Optional:            true,
-						Attributes: getExternalProviderSchemaAttributes("GitHub"),
+						Attributes:          getExternalProviderSchemaAttributes("GitHub"),
 					},
 					"external_gitlab": schema.SingleNestedAttribute{
 						MarkdownDescription: "GitLab OAuth provider configuration",
 						Optional:            true,
-						Attributes: getExternalProviderSchemaAttributes("GitLab"),
+						Attributes:          getExternalProviderSchemaAttributes("GitLab"),
 					},
 					"external_google": schema.SingleNestedAttribute{
 						MarkdownDescription: "Google OAuth provider configuration",
 						Optional:            true,
-						Attributes: getExternalProviderSchemaAttributes("Google"),
+						Attributes:          getExternalProviderSchemaAttributes("Google"),
 					},
 					"external_kakao": schema.SingleNestedAttribute{
 						MarkdownDescription: "Kakao OAuth provider configuration",
 						Optional:            true,
-						Attributes: getExternalProviderSchemaAttributes("Kakao"),
+						Attributes:          getExternalProviderSchemaAttributes("Kakao"),
 					},
 					"external_keycloak": schema.SingleNestedAttribute{
 						MarkdownDescription: "Keycloak OAuth provider configuration",
 						Optional:            true,
-						Attributes: getExternalProviderSchemaAttributes("Keycloak"),
+						Attributes:          getExternalProviderSchemaAttributes("Keycloak"),
 					},
 					"external_linkedin_oidc": schema.SingleNestedAttribute{
 						MarkdownDescription: "LinkedIn OIDC OAuth provider configuration",
 						Optional:            true,
-						Attributes: getExternalProviderSchemaAttributes("LinkedIn OIDC"),
+						Attributes:          getExternalProviderSchemaAttributes("LinkedIn OIDC"),
 					},
 					"external_notion": schema.SingleNestedAttribute{
 						MarkdownDescription: "Notion OAuth provider configuration",
 						Optional:            true,
-						Attributes: getExternalProviderSchemaAttributes("Notion"),
+						Attributes:          getExternalProviderSchemaAttributes("Notion"),
 					},
 					"external_slack": schema.SingleNestedAttribute{
 						MarkdownDescription: "Slack OAuth provider configuration",
 						Optional:            true,
-						Attributes: getExternalProviderSchemaAttributes("Slack"),
+						Attributes:          getExternalProviderSchemaAttributes("Slack"),
 					},
 					"external_slack_oidc": schema.SingleNestedAttribute{
 						MarkdownDescription: "Slack OIDC OAuth provider configuration",
 						Optional:            true,
-						Attributes: getExternalProviderSchemaAttributes("Slack OIDC"),
+						Attributes:          getExternalProviderSchemaAttributes("Slack OIDC"),
 					},
 					"external_spotify": schema.SingleNestedAttribute{
 						MarkdownDescription: "Spotify OAuth provider configuration",
 						Optional:            true,
-						Attributes: getExternalProviderSchemaAttributes("Spotify"),
+						Attributes:          getExternalProviderSchemaAttributes("Spotify"),
 					},
 					"external_twitch": schema.SingleNestedAttribute{
 						MarkdownDescription: "Twitch OAuth provider configuration",
 						Optional:            true,
-						Attributes: getExternalProviderSchemaAttributes("Twitch"),
+						Attributes:          getExternalProviderSchemaAttributes("Twitch"),
 					},
 					"external_twitter": schema.SingleNestedAttribute{
 						MarkdownDescription: "Twitter OAuth provider configuration",
 						Optional:            true,
-						Attributes: getExternalProviderSchemaAttributes("Twitter"),
+						Attributes:          getExternalProviderSchemaAttributes("Twitter"),
 					},
 					"external_workos": schema.SingleNestedAttribute{
 						MarkdownDescription: "WorkOS OAuth provider configuration",
 						Optional:            true,
-						Attributes: getExternalProviderSchemaAttributes("WorkOS"),
+						Attributes:          getExternalProviderSchemaAttributes("WorkOS"),
 					},
 					"external_zoom": schema.SingleNestedAttribute{
 						MarkdownDescription: "Zoom OAuth provider configuration",
 						Optional:            true,
-						Attributes: getExternalProviderSchemaAttributes("Zoom"),
+						Attributes:          getExternalProviderSchemaAttributes("Zoom"),
 					},
 				},
 			},
@@ -710,6 +716,7 @@ func (r *SettingsResource) readApiConfig(ctx context.Context, state *SettingsRes
 	}
 	state.Api.MaxRows = types.Int64Value(int64(httpResp.JSON200.MaxRows))
 
+
 	return nil
 }
 
@@ -730,6 +737,7 @@ func (r *SettingsResource) updateApiConfig(ctx context.Context, plan *SettingsRe
 		val := int(plan.Api.MaxRows.ValueInt64())
 		body.MaxRows = &val
 	}
+
 
 	httpResp, err := r.client.V1UpdatePostgrestServiceConfigWithResponse(ctx, plan.ProjectRef.ValueString(), body)
 	if err != nil {
@@ -782,10 +790,13 @@ func (r *SettingsResource) readAuthConfig(ctx context.Context, state *SettingsRe
 	if resp.SiteUrl != nil {
 		state.Auth.SiteUrl = types.StringValue(*resp.SiteUrl)
 	}
+	if resp.UriAllowList != nil {
+		state.Auth.UriAllowList = types.StringValue(*resp.UriAllowList)
+	}
 	state.Auth.MailerOtpExp = types.Int64Value(int64(resp.MailerOtpExp))
 	state.Auth.MfaPhoneOtpLength = types.Int64Value(int64(resp.MfaPhoneOtpLength))
 	state.Auth.SmsOtpLength = types.Int64Value(int64(resp.SmsOtpLength))
-	
+
 	// Handle SMTP settings
 	if resp.SmtpHost != nil {
 		state.Auth.SmtpHost = types.StringValue(*resp.SmtpHost)
@@ -796,7 +807,7 @@ func (r *SettingsResource) readAuthConfig(ctx context.Context, state *SettingsRe
 	if resp.SmtpUser != nil {
 		state.Auth.SmtpUser = types.StringValue(*resp.SmtpUser)
 	}
-	
+
 	// Handle external providers - only populate if they exist in config
 	state.Auth.ExternalApple = readExternalProvider(state.Auth.ExternalApple, resp.ExternalAppleEnabled, resp.ExternalAppleClientId, "", resp.ExternalAppleAdditionalClientIds, nil)
 	state.Auth.ExternalAzure = readExternalProvider(state.Auth.ExternalAzure, resp.ExternalAzureEnabled, resp.ExternalAzureClientId, "", nil, resp.ExternalAzureUrl)
@@ -845,6 +856,9 @@ func (r *SettingsResource) updateAuthConfig(ctx context.Context, plan *SettingsR
 	if !plan.Auth.SiteUrl.IsNull() {
 		body.SiteUrl = plan.Auth.SiteUrl.ValueStringPointer()
 	}
+	if !plan.Auth.UriAllowList.IsNull() {
+		body.UriAllowList = plan.Auth.UriAllowList.ValueStringPointer()
+	}
 	if !plan.Auth.SmtpHost.IsNull() {
 		body.SmtpHost = plan.Auth.SmtpHost.ValueStringPointer()
 	}
@@ -858,7 +872,7 @@ func (r *SettingsResource) updateAuthConfig(ctx context.Context, plan *SettingsR
 	if !plan.Auth.SmtpPass.IsNull() {
 		body.SmtpPass = plan.Auth.SmtpPass.ValueStringPointer()
 	}
-	
+
 	// Handle external providers
 	updateExternalProvider(plan.Auth.ExternalApple, &body.ExternalAppleEnabled, &body.ExternalAppleClientId, &body.ExternalAppleSecret, &body.ExternalAppleAdditionalClientIds, nil)
 	updateExternalProvider(plan.Auth.ExternalAzure, &body.ExternalAzureEnabled, &body.ExternalAzureClientId, &body.ExternalAzureSecret, nil, &body.ExternalAzureUrl)
@@ -1008,7 +1022,7 @@ func (r *SettingsResource) readNetworkConfig(ctx context.Context, state *Setting
 	} else {
 		state.Network.DbAllowedCidrs = nil
 	}
-	
+
 	if v6 := httpResp.JSON200.Config.DbAllowedCidrsV6; v6 != nil {
 		state.Network.DbAllowedCidrsV6 = []types.String{}
 		for _, cidr := range *v6 {
@@ -1067,24 +1081,111 @@ func (r *SettingsResource) updateNetworkConfig(ctx context.Context, plan *Settin
 	return nil
 }
 
-// Placeholder implementations for storage and pooler - these would need actual API endpoints
 func (r *SettingsResource) readStorageConfig(ctx context.Context, state *SettingsResourceModel) diag.Diagnostics {
-	// TODO: Implement when API endpoints are available
+	httpResp, err := r.client.V1GetStorageConfigWithResponse(ctx, state.Id.ValueString())
+	if err != nil {
+		return diag.Diagnostics{diag.NewErrorDiagnostic("Client Error", fmt.Sprintf("Unable to read storage settings: %s", err))}
+	}
+
+	switch httpResp.StatusCode() {
+	case http.StatusNotFound, http.StatusNotAcceptable:
+		return nil
+	}
+
+	if httpResp.JSON200 == nil {
+		return diag.Diagnostics{diag.NewErrorDiagnostic("Client Error", fmt.Sprintf("Unable to read storage settings, got status %d: %s", httpResp.StatusCode(), httpResp.Body))}
+	}
+
+	if state.Storage == nil {
+		state.Storage = &StorageConfig{}
+	}
+
+	resp := httpResp.JSON200
+	state.Storage.FileSizeLimit = types.Int64Value(resp.FileSizeLimit)
+
+	if state.Storage.Features == nil {
+		state.Storage.Features = &StorageFeatures{}
+	}
+	state.Storage.Features.ImageTransformation = types.BoolValue(resp.Features.ImageTransformation.Enabled)
+
 	return nil
 }
 
 func (r *SettingsResource) updateStorageConfig(ctx context.Context, plan *SettingsResourceModel) diag.Diagnostics {
-	// TODO: Implement when API endpoints are available
+	body := api.UpdateStorageConfigBody{}
+
+	if !plan.Storage.FileSizeLimit.IsNull() {
+		val := plan.Storage.FileSizeLimit.ValueInt64()
+		body.FileSizeLimit = &val
+	}
+
+	if plan.Storage.Features != nil && !plan.Storage.Features.ImageTransformation.IsNull() {
+		body.Features = &api.StorageFeatures{
+			ImageTransformation: api.StorageFeatureImageTransformation{
+				Enabled: plan.Storage.Features.ImageTransformation.ValueBool(),
+			},
+		}
+	}
+
+	httpResp, err := r.client.V1UpdateStorageConfigWithResponse(ctx, plan.ProjectRef.ValueString(), body)
+	if err != nil {
+		return diag.Diagnostics{diag.NewErrorDiagnostic("Client Error", fmt.Sprintf("Unable to update storage settings: %s", err))}
+	}
+
+	if httpResp.StatusCode() < 200 || httpResp.StatusCode() >= 300 {
+		return diag.Diagnostics{diag.NewErrorDiagnostic("Client Error", fmt.Sprintf("Unable to update storage settings, got status %d: %s", httpResp.StatusCode(), httpResp.Body))}
+	}
+
 	return nil
 }
 
 func (r *SettingsResource) readPoolerConfig(ctx context.Context, state *SettingsResourceModel) diag.Diagnostics {
-	// TODO: Implement when API endpoints are available
+	httpResp, err := r.client.V1GetSupavisorConfigWithResponse(ctx, state.Id.ValueString())
+	if err != nil {
+		return diag.Diagnostics{diag.NewErrorDiagnostic("Client Error", fmt.Sprintf("Unable to read pooler settings: %s", err))}
+	}
+
+	switch httpResp.StatusCode() {
+	case http.StatusNotFound, http.StatusNotAcceptable:
+		return nil
+	}
+
+	if httpResp.JSON200 == nil {
+		return diag.Diagnostics{diag.NewErrorDiagnostic("Client Error", fmt.Sprintf("Unable to read pooler settings, got status %d: %s", httpResp.StatusCode(), httpResp.Body))}
+	}
+
+	if state.Pooler == nil {
+		state.Pooler = &PoolerConfig{}
+	}
+
+	// The API returns an array of configurations, typically we want the first one
+	if len(*httpResp.JSON200) > 0 {
+		config := (*httpResp.JSON200)[0]
+		if config.DefaultPoolSize != nil {
+			state.Pooler.DefaultPoolSize = types.Int64Value(int64(*config.DefaultPoolSize))
+		}
+	}
+
 	return nil
 }
 
 func (r *SettingsResource) updatePoolerConfig(ctx context.Context, plan *SettingsResourceModel) diag.Diagnostics {
-	// TODO: Implement when API endpoints are available
+	body := api.UpdateSupavisorConfigBody{}
+
+	if !plan.Pooler.DefaultPoolSize.IsNull() {
+		val := int(plan.Pooler.DefaultPoolSize.ValueInt64())
+		body.DefaultPoolSize = &val
+	}
+
+	httpResp, err := r.client.V1UpdateSupavisorConfigWithResponse(ctx, plan.ProjectRef.ValueString(), body)
+	if err != nil {
+		return diag.Diagnostics{diag.NewErrorDiagnostic("Client Error", fmt.Sprintf("Unable to update pooler settings: %s", err))}
+	}
+
+	if httpResp.StatusCode() < 200 || httpResp.StatusCode() >= 300 {
+		return diag.Diagnostics{diag.NewErrorDiagnostic("Client Error", fmt.Sprintf("Unable to update pooler settings, got status %d: %s", httpResp.StatusCode(), httpResp.Body))}
+	}
+
 	return nil
 }
 
@@ -1130,7 +1231,7 @@ func readExternalProvider(existingConfig *ExternalProviderConfig, enabled *bool,
 	if existingConfig == nil && (enabled == nil || !*enabled) {
 		return nil
 	}
-	
+
 	config := &ExternalProviderConfig{}
 	if enabled != nil {
 		config.Enabled = types.BoolValue(*enabled)
@@ -1148,7 +1249,7 @@ func readExternalProvider(existingConfig *ExternalProviderConfig, enabled *bool,
 	if url != nil {
 		config.Url = types.StringValue(*url)
 	}
-	
+
 	return config
 }
 
@@ -1157,7 +1258,7 @@ func updateExternalProvider(config *ExternalProviderConfig, enabled **bool, clie
 	if config == nil {
 		return
 	}
-	
+
 	if !config.Enabled.IsNull() {
 		*enabled = config.Enabled.ValueBoolPointer()
 	}
@@ -1174,3 +1275,4 @@ func updateExternalProvider(config *ExternalProviderConfig, enabled **bool, clie
 		*url = config.Url.ValueStringPointer()
 	}
 }
+

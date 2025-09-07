@@ -1,13 +1,13 @@
 resource "supabase_project" "test" {
   organization_id   = "continued-brown-smelt"
   name              = "foo"
-  database_password = "bar"
+  db_pass           = "bar"
   region            = "us-east-1"
   instance_size     = "micro"
 
   lifecycle {
     ignore_changes = [
-      database_password,
+      db_pass,
       instance_size,
     ]
   }

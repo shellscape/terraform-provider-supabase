@@ -69,7 +69,7 @@ func TestAccProjectResource(t *testing.T) {
 				ResourceName:            "supabase_project.test",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"database_password", "instance_size"},
+				ImportStateVerifyIgnore: []string{"db_pass", "instance_size"},
 			},
 			// Delete testing automatically occurs in TestCase
 		},

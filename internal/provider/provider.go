@@ -104,6 +104,8 @@ func (p *SupabaseProvider) Resources(ctx context.Context) []func() resource.Reso
 		NewBranchResource,
 		NewEdgeFunctionResource,
 		NewStorageBucketResource,
+		NewSsoProviderResource,
+		NewDatabaseWebhookResource,
 	}
 }
 
@@ -113,6 +115,7 @@ func (p *SupabaseProvider) DataSources(ctx context.Context) []func() datasource.
 		NewPoolerDataSource,
 		NewAPIKeysDataSource,
 		NewStorageBucketsDataSource,
+		NewSsoProvidersDataSource,
 	}
 }
 
