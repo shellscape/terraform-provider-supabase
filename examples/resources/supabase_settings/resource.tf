@@ -32,6 +32,16 @@ resource "supabase_settings" "production" {
     # OR use direct properties (for CDKTF compatibility)
     # external_github_client_id = "your_github_client_id"
     # external_github_enabled = true
+    # external_google_client_id = "your_google_client_id"
+    # external_google_enabled = true
+    # external_apple_client_id = "your_apple_client_id"
+    # external_apple_enabled = true
+    # external_facebook_client_id = "your_facebook_client_id"
+    # external_facebook_enabled = true
+    # external_azure_client_id = "your_azure_client_id"
+    # external_azure_enabled = true
+    # external_discord_client_id = "your_discord_client_id"
+    # external_discord_enabled = true
   }
 
   storage = {

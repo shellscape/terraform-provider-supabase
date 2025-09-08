@@ -115,16 +115,26 @@ type AuthConfig struct {
 
 	// External providers
 	ExternalApple        *ExternalProviderConfig `tfsdk:"external_apple"`
+	ExternalAppleClientId types.String          `tfsdk:"external_apple_client_id"`
+	ExternalAppleEnabled  types.Bool            `tfsdk:"external_apple_enabled"`
 	ExternalAzure        *ExternalProviderConfig `tfsdk:"external_azure"`
+	ExternalAzureClientId types.String          `tfsdk:"external_azure_client_id"`
+	ExternalAzureEnabled  types.Bool            `tfsdk:"external_azure_enabled"`
 	ExternalBitbucket    *ExternalProviderConfig `tfsdk:"external_bitbucket"`
 	ExternalDiscord      *ExternalProviderConfig `tfsdk:"external_discord"`
+	ExternalDiscordClientId types.String        `tfsdk:"external_discord_client_id"`
+	ExternalDiscordEnabled  types.Bool          `tfsdk:"external_discord_enabled"`
 	ExternalFacebook     *ExternalProviderConfig `tfsdk:"external_facebook"`
+	ExternalFacebookClientId types.String       `tfsdk:"external_facebook_client_id"`
+	ExternalFacebookEnabled  types.Bool         `tfsdk:"external_facebook_enabled"`
 	ExternalFigma        *ExternalProviderConfig `tfsdk:"external_figma"`
 	ExternalGithub       *ExternalProviderConfig `tfsdk:"external_github"`
 	ExternalGithubClientId types.String          `tfsdk:"external_github_client_id"`
 	ExternalGithubEnabled types.Bool             `tfsdk:"external_github_enabled"`
 	ExternalGitlab       *ExternalProviderConfig `tfsdk:"external_gitlab"`
 	ExternalGoogle       *ExternalProviderConfig `tfsdk:"external_google"`
+	ExternalGoogleClientId types.String         `tfsdk:"external_google_client_id"`
+	ExternalGoogleEnabled  types.Bool           `tfsdk:"external_google_enabled"`
 	ExternalKakao        *ExternalProviderConfig `tfsdk:"external_kakao"`
 	ExternalKeycloak     *ExternalProviderConfig `tfsdk:"external_keycloak"`
 	ExternalLinkedinOidc *ExternalProviderConfig `tfsdk:"external_linkedin_oidc"`
@@ -142,9 +152,23 @@ type AuthConfig struct {
 	SmsOtpLength types.Int64  `tfsdk:"sms_otp_length"`
 
 	// Email settings
-	MailerOtpExp types.Int64  `tfsdk:"mailer_otp_exp"`
-	SmtpHost     types.String `tfsdk:"smtp_host"`
-	SmtpPort     types.Int64  `tfsdk:"smtp_port"`
+	MailerAutoconfirm                    types.Bool   `tfsdk:"mailer_autoconfirm"`
+	MailerAllowUnverifiedEmailSignIns    types.Bool   `tfsdk:"mailer_allow_unverified_email_sign_ins"`
+	MailerSecureEmailChangeEnabled       types.Bool   `tfsdk:"mailer_secure_email_change_enabled"`
+	MailerOtpExp                         types.Int64  `tfsdk:"mailer_otp_exp"`
+	MailerOtpLength                      types.Int64  `tfsdk:"mailer_otp_length"`
+	
+	// Password settings
+	PasswordMinLength                    types.Int64  `tfsdk:"password_min_length"`
+	PasswordHibpEnabled                  types.Bool   `tfsdk:"password_hibp_enabled"`
+	PasswordRequiredCharacters           types.String `tfsdk:"password_required_characters"`
+	
+	// SMTP settings
+	SmtpAdminEmail                       types.String `tfsdk:"smtp_admin_email"`
+	SmtpHost                             types.String `tfsdk:"smtp_host"`
+	SmtpMaxFrequency                     types.Int64  `tfsdk:"smtp_max_frequency"`
+	SmtpPort                             types.Int64  `tfsdk:"smtp_port"`
+	SmtpSenderName                       types.String `tfsdk:"smtp_sender_name"`
 	SmtpUser     types.String `tfsdk:"smtp_user"`
 	SmtpPass     types.String `tfsdk:"smtp_pass"`
 
@@ -385,16 +409,61 @@ func (r *SettingsResource) Schema(ctx context.Context, req resource.SchemaReques
 						MarkdownDescription: "Length of SMS OTP codes",
 						Optional:            true,
 					},
+					
+					// Mailer settings
+					"mailer_autoconfirm": schema.BoolAttribute{
+						MarkdownDescription: "Automatically confirm user emails",
+						Optional:            true,
+					},
+					"mailer_allow_unverified_email_sign_ins": schema.BoolAttribute{
+						MarkdownDescription: "Allow sign-ins with unverified email addresses",
+						Optional:            true,
+					},
+					"mailer_secure_email_change_enabled": schema.BoolAttribute{
+						MarkdownDescription: "Enable secure email change process",
+						Optional:            true,
+					},
 					"mailer_otp_exp": schema.Int64Attribute{
 						MarkdownDescription: "Email OTP expiration time in seconds",
+						Optional:            true,
+					},
+					"mailer_otp_length": schema.Int64Attribute{
+						MarkdownDescription: "Length of email OTP codes",
+						Optional:            true,
+					},
+					
+					// Password settings
+					"password_min_length": schema.Int64Attribute{
+						MarkdownDescription: "Minimum password length",
+						Optional:            true,
+					},
+					"password_hibp_enabled": schema.BoolAttribute{
+						MarkdownDescription: "Enable HaveIBeenPwned password checking",
+						Optional:            true,
+					},
+					"password_required_characters": schema.StringAttribute{
+						MarkdownDescription: "Required character types for passwords",
+						Optional:            true,
+					},
+					// SMTP settings
+					"smtp_admin_email": schema.StringAttribute{
+						MarkdownDescription: "SMTP admin email address",
 						Optional:            true,
 					},
 					"smtp_host": schema.StringAttribute{
 						MarkdownDescription: "SMTP server hostname",
 						Optional:            true,
 					},
+					"smtp_max_frequency": schema.Int64Attribute{
+						MarkdownDescription: "Maximum SMTP frequency",
+						Optional:            true,
+					},
 					"smtp_port": schema.Int64Attribute{
 						MarkdownDescription: "SMTP server port",
+						Optional:            true,
+					},
+					"smtp_sender_name": schema.StringAttribute{
+						MarkdownDescription: "SMTP sender name",
 						Optional:            true,
 					},
 					"smtp_user": schema.StringAttribute{
@@ -438,10 +507,26 @@ func (r *SettingsResource) Schema(ctx context.Context, req resource.SchemaReques
 						Optional:            true,
 						Attributes:          getExternalProviderSchemaAttributes("Apple"),
 					},
+					"external_apple_client_id": schema.StringAttribute{
+						MarkdownDescription: "Apple OAuth client ID (direct property)",
+						Optional:            true,
+					},
+					"external_apple_enabled": schema.BoolAttribute{
+						MarkdownDescription: "Apple OAuth enabled (direct property)",
+						Optional:            true,
+					},
 					"external_azure": schema.SingleNestedAttribute{
 						MarkdownDescription: "Azure OAuth provider configuration",
 						Optional:            true,
 						Attributes:          getExternalProviderSchemaAttributes("Azure"),
+					},
+					"external_azure_client_id": schema.StringAttribute{
+						MarkdownDescription: "Azure OAuth client ID (direct property)",
+						Optional:            true,
+					},
+					"external_azure_enabled": schema.BoolAttribute{
+						MarkdownDescription: "Azure OAuth enabled (direct property)",
+						Optional:            true,
 					},
 					"external_bitbucket": schema.SingleNestedAttribute{
 						MarkdownDescription: "Bitbucket OAuth provider configuration",
@@ -453,10 +538,26 @@ func (r *SettingsResource) Schema(ctx context.Context, req resource.SchemaReques
 						Optional:            true,
 						Attributes:          getExternalProviderSchemaAttributes("Discord"),
 					},
+					"external_discord_client_id": schema.StringAttribute{
+						MarkdownDescription: "Discord OAuth client ID (direct property)",
+						Optional:            true,
+					},
+					"external_discord_enabled": schema.BoolAttribute{
+						MarkdownDescription: "Discord OAuth enabled (direct property)",
+						Optional:            true,
+					},
 					"external_facebook": schema.SingleNestedAttribute{
 						MarkdownDescription: "Facebook OAuth provider configuration",
 						Optional:            true,
 						Attributes:          getExternalProviderSchemaAttributes("Facebook"),
+					},
+					"external_facebook_client_id": schema.StringAttribute{
+						MarkdownDescription: "Facebook OAuth client ID (direct property)",
+						Optional:            true,
+					},
+					"external_facebook_enabled": schema.BoolAttribute{
+						MarkdownDescription: "Facebook OAuth enabled (direct property)",
+						Optional:            true,
 					},
 					"external_figma": schema.SingleNestedAttribute{
 						MarkdownDescription: "Figma OAuth provider configuration",
@@ -485,6 +586,14 @@ func (r *SettingsResource) Schema(ctx context.Context, req resource.SchemaReques
 						MarkdownDescription: "Google OAuth provider configuration",
 						Optional:            true,
 						Attributes:          getExternalProviderSchemaAttributes("Google"),
+					},
+					"external_google_client_id": schema.StringAttribute{
+						MarkdownDescription: "Google OAuth client ID (direct property)",
+						Optional:            true,
+					},
+					"external_google_enabled": schema.BoolAttribute{
+						MarkdownDescription: "Google OAuth enabled (direct property)",
+						Optional:            true,
 					},
 					"external_kakao": schema.SingleNestedAttribute{
 						MarkdownDescription: "Kakao OAuth provider configuration",
@@ -830,27 +939,101 @@ func (r *SettingsResource) readAuthConfig(ctx context.Context, state *SettingsRe
 	if resp.UriAllowList != nil {
 		state.Auth.UriAllowList = types.StringValue(*resp.UriAllowList)
 	}
+	// Handle mailer settings
+	if resp.MailerAutoconfirm != nil {
+		state.Auth.MailerAutoconfirm = types.BoolValue(*resp.MailerAutoconfirm)
+	}
+	if resp.MailerAllowUnverifiedEmailSignIns != nil {
+		state.Auth.MailerAllowUnverifiedEmailSignIns = types.BoolValue(*resp.MailerAllowUnverifiedEmailSignIns)
+	}
+	if resp.MailerSecureEmailChangeEnabled != nil {
+		state.Auth.MailerSecureEmailChangeEnabled = types.BoolValue(*resp.MailerSecureEmailChangeEnabled)
+	}
 	state.Auth.MailerOtpExp = types.Int64Value(int64(resp.MailerOtpExp))
+	if resp.MailerOtpLength != nil {
+		state.Auth.MailerOtpLength = types.Int64Value(int64(*resp.MailerOtpLength))
+	}
+	
+	// Handle password settings
+	if resp.PasswordMinLength != nil {
+		state.Auth.PasswordMinLength = types.Int64Value(int64(*resp.PasswordMinLength))
+	}
+	if resp.PasswordHibpEnabled != nil {
+		state.Auth.PasswordHibpEnabled = types.BoolValue(*resp.PasswordHibpEnabled)
+	}
+	if resp.PasswordRequiredCharacters != nil {
+		state.Auth.PasswordRequiredCharacters = types.StringValue(*resp.PasswordRequiredCharacters)
+	}
+	
 	state.Auth.MfaPhoneOtpLength = types.Int64Value(int64(resp.MfaPhoneOtpLength))
 	state.Auth.SmsOtpLength = types.Int64Value(int64(resp.SmsOtpLength))
 
 	// Handle SMTP settings
+	if resp.SmtpAdminEmail != nil {
+		state.Auth.SmtpAdminEmail = types.StringValue(*resp.SmtpAdminEmail)
+	}
 	if resp.SmtpHost != nil {
 		state.Auth.SmtpHost = types.StringValue(*resp.SmtpHost)
 	}
+	if resp.SmtpMaxFrequency != nil {
+		state.Auth.SmtpMaxFrequency = types.Int64Value(int64(*resp.SmtpMaxFrequency))
+	}
 	if resp.SmtpPort != nil {
 		state.Auth.SmtpPort = types.Int64Value(parseInt(*resp.SmtpPort))
+	}
+	if resp.SmtpSenderName != nil {
+		state.Auth.SmtpSenderName = types.StringValue(*resp.SmtpSenderName)
 	}
 	if resp.SmtpUser != nil {
 		state.Auth.SmtpUser = types.StringValue(*resp.SmtpUser)
 	}
 
-	// Handle external providers - only populate if they exist in config
-	state.Auth.ExternalApple = readExternalProvider(state.Auth.ExternalApple, resp.ExternalAppleEnabled, resp.ExternalAppleClientId, "", resp.ExternalAppleAdditionalClientIds, nil)
-	state.Auth.ExternalAzure = readExternalProvider(state.Auth.ExternalAzure, resp.ExternalAzureEnabled, resp.ExternalAzureClientId, "", nil, resp.ExternalAzureUrl)
+	// Handle external providers - only populate nested if they exist in config
+	if state.Auth.ExternalApple != nil {
+		state.Auth.ExternalApple = readExternalProvider(state.Auth.ExternalApple, resp.ExternalAppleEnabled, resp.ExternalAppleClientId, "", resp.ExternalAppleAdditionalClientIds, nil)
+	}
+	// Handle direct Apple properties
+	if !state.Auth.ExternalAppleClientId.IsNull() {
+		state.Auth.ExternalAppleClientId = types.StringPointerValue(resp.ExternalAppleClientId)
+	}
+	if !state.Auth.ExternalAppleEnabled.IsNull() {
+		state.Auth.ExternalAppleEnabled = types.BoolPointerValue(resp.ExternalAppleEnabled)
+	}
+	
+	if state.Auth.ExternalAzure != nil {
+		state.Auth.ExternalAzure = readExternalProvider(state.Auth.ExternalAzure, resp.ExternalAzureEnabled, resp.ExternalAzureClientId, "", nil, resp.ExternalAzureUrl)
+	}
+	// Handle direct Azure properties
+	if !state.Auth.ExternalAzureClientId.IsNull() {
+		state.Auth.ExternalAzureClientId = types.StringPointerValue(resp.ExternalAzureClientId)
+	}
+	if !state.Auth.ExternalAzureEnabled.IsNull() {
+		state.Auth.ExternalAzureEnabled = types.BoolPointerValue(resp.ExternalAzureEnabled)
+	}
+	
 	state.Auth.ExternalBitbucket = readExternalProvider(state.Auth.ExternalBitbucket, resp.ExternalBitbucketEnabled, resp.ExternalBitbucketClientId, "", nil, nil)
-	state.Auth.ExternalDiscord = readExternalProvider(state.Auth.ExternalDiscord, resp.ExternalDiscordEnabled, resp.ExternalDiscordClientId, "", nil, nil)
-	state.Auth.ExternalFacebook = readExternalProvider(state.Auth.ExternalFacebook, resp.ExternalFacebookEnabled, resp.ExternalFacebookClientId, "", nil, nil)
+	
+	if state.Auth.ExternalDiscord != nil {
+		state.Auth.ExternalDiscord = readExternalProvider(state.Auth.ExternalDiscord, resp.ExternalDiscordEnabled, resp.ExternalDiscordClientId, "", nil, nil)
+	}
+	// Handle direct Discord properties
+	if !state.Auth.ExternalDiscordClientId.IsNull() {
+		state.Auth.ExternalDiscordClientId = types.StringPointerValue(resp.ExternalDiscordClientId)
+	}
+	if !state.Auth.ExternalDiscordEnabled.IsNull() {
+		state.Auth.ExternalDiscordEnabled = types.BoolPointerValue(resp.ExternalDiscordEnabled)
+	}
+	
+	if state.Auth.ExternalFacebook != nil {
+		state.Auth.ExternalFacebook = readExternalProvider(state.Auth.ExternalFacebook, resp.ExternalFacebookEnabled, resp.ExternalFacebookClientId, "", nil, nil)
+	}
+	// Handle direct Facebook properties
+	if !state.Auth.ExternalFacebookClientId.IsNull() {
+		state.Auth.ExternalFacebookClientId = types.StringPointerValue(resp.ExternalFacebookClientId)
+	}
+	if !state.Auth.ExternalFacebookEnabled.IsNull() {
+		state.Auth.ExternalFacebookEnabled = types.BoolPointerValue(resp.ExternalFacebookEnabled)
+	}
 	state.Auth.ExternalFigma = readExternalProvider(state.Auth.ExternalFigma, resp.ExternalFigmaEnabled, resp.ExternalFigmaClientId, "", nil, nil)
 	// Only populate nested ExternalGithub if it was originally configured (not using direct properties)
 	if state.Auth.ExternalGithub != nil {
@@ -866,7 +1049,17 @@ func (r *SettingsResource) readAuthConfig(ctx context.Context, state *SettingsRe
 		state.Auth.ExternalGithubEnabled = types.BoolPointerValue(resp.ExternalGithubEnabled)
 	}
 	state.Auth.ExternalGitlab = readExternalProvider(state.Auth.ExternalGitlab, resp.ExternalGitlabEnabled, resp.ExternalGitlabClientId, "", nil, resp.ExternalGitlabUrl)
-	state.Auth.ExternalGoogle = readExternalProvider(state.Auth.ExternalGoogle, resp.ExternalGoogleEnabled, resp.ExternalGoogleClientId, "", resp.ExternalGoogleAdditionalClientIds, nil)
+	
+	if state.Auth.ExternalGoogle != nil {
+		state.Auth.ExternalGoogle = readExternalProvider(state.Auth.ExternalGoogle, resp.ExternalGoogleEnabled, resp.ExternalGoogleClientId, "", resp.ExternalGoogleAdditionalClientIds, nil)
+	}
+	// Handle direct Google properties
+	if !state.Auth.ExternalGoogleClientId.IsNull() {
+		state.Auth.ExternalGoogleClientId = types.StringPointerValue(resp.ExternalGoogleClientId)
+	}
+	if !state.Auth.ExternalGoogleEnabled.IsNull() {
+		state.Auth.ExternalGoogleEnabled = types.BoolPointerValue(resp.ExternalGoogleEnabled)
+	}
 	state.Auth.ExternalKakao = readExternalProvider(state.Auth.ExternalKakao, resp.ExternalKakaoEnabled, resp.ExternalKakaoClientId, "", nil, nil)
 	state.Auth.ExternalKeycloak = readExternalProvider(state.Auth.ExternalKeycloak, resp.ExternalKeycloakEnabled, resp.ExternalKeycloakClientId, "", nil, resp.ExternalKeycloakUrl)
 	state.Auth.ExternalLinkedinOidc = readExternalProvider(state.Auth.ExternalLinkedinOidc, resp.ExternalLinkedinOidcEnabled, resp.ExternalLinkedinOidcClientId, "", nil, nil)
@@ -908,12 +1101,51 @@ func (r *SettingsResource) updateAuthConfig(ctx context.Context, plan *SettingsR
 	if !plan.Auth.UriAllowList.IsNull() {
 		body.UriAllowList = plan.Auth.UriAllowList.ValueStringPointer()
 	}
+	// Handle mailer settings
+	if !plan.Auth.MailerAutoconfirm.IsNull() {
+		body.MailerAutoconfirm = plan.Auth.MailerAutoconfirm.ValueBoolPointer()
+	}
+	if !plan.Auth.MailerAllowUnverifiedEmailSignIns.IsNull() {
+		body.MailerAllowUnverifiedEmailSignIns = plan.Auth.MailerAllowUnverifiedEmailSignIns.ValueBoolPointer()
+	}
+	if !plan.Auth.MailerSecureEmailChangeEnabled.IsNull() {
+		body.MailerSecureEmailChangeEnabled = plan.Auth.MailerSecureEmailChangeEnabled.ValueBoolPointer()
+	}
+	if !plan.Auth.MailerOtpLength.IsNull() {
+		val := int(plan.Auth.MailerOtpLength.ValueInt64())
+		body.MailerOtpLength = &val
+	}
+	
+	// Handle password settings
+	if !plan.Auth.PasswordMinLength.IsNull() {
+		val := int(plan.Auth.PasswordMinLength.ValueInt64())
+		body.PasswordMinLength = &val
+	}
+	if !plan.Auth.PasswordHibpEnabled.IsNull() {
+		body.PasswordHibpEnabled = plan.Auth.PasswordHibpEnabled.ValueBoolPointer()
+	}
+	if !plan.Auth.PasswordRequiredCharacters.IsNull() {
+		val := api.UpdateAuthConfigBodyPasswordRequiredCharacters(plan.Auth.PasswordRequiredCharacters.ValueString())
+		body.PasswordRequiredCharacters = &val
+	}
+	
+	// Handle SMTP settings
+	if !plan.Auth.SmtpAdminEmail.IsNull() {
+		body.SmtpAdminEmail = plan.Auth.SmtpAdminEmail.ValueStringPointer()
+	}
 	if !plan.Auth.SmtpHost.IsNull() {
 		body.SmtpHost = plan.Auth.SmtpHost.ValueStringPointer()
+	}
+	if !plan.Auth.SmtpMaxFrequency.IsNull() {
+		val := int(plan.Auth.SmtpMaxFrequency.ValueInt64())
+		body.SmtpMaxFrequency = &val
 	}
 	if !plan.Auth.SmtpPort.IsNull() {
 		val := fmt.Sprintf("%d", plan.Auth.SmtpPort.ValueInt64())
 		body.SmtpPort = &val
+	}
+	if !plan.Auth.SmtpSenderName.IsNull() {
+		body.SmtpSenderName = plan.Auth.SmtpSenderName.ValueStringPointer()
 	}
 	if !plan.Auth.SmtpUser.IsNull() {
 		body.SmtpUser = plan.Auth.SmtpUser.ValueStringPointer()
@@ -924,10 +1156,42 @@ func (r *SettingsResource) updateAuthConfig(ctx context.Context, plan *SettingsR
 
 	// Handle external providers
 	updateExternalProvider(plan.Auth.ExternalApple, &body.ExternalAppleEnabled, &body.ExternalAppleClientId, &body.ExternalAppleSecret, &body.ExternalAppleAdditionalClientIds, nil)
+	// Handle direct Apple properties
+	if !plan.Auth.ExternalAppleClientId.IsNull() {
+		body.ExternalAppleClientId = plan.Auth.ExternalAppleClientId.ValueStringPointer()
+	}
+	if !plan.Auth.ExternalAppleEnabled.IsNull() {
+		body.ExternalAppleEnabled = plan.Auth.ExternalAppleEnabled.ValueBoolPointer()
+	}
+	
 	updateExternalProvider(plan.Auth.ExternalAzure, &body.ExternalAzureEnabled, &body.ExternalAzureClientId, &body.ExternalAzureSecret, nil, &body.ExternalAzureUrl)
+	// Handle direct Azure properties
+	if !plan.Auth.ExternalAzureClientId.IsNull() {
+		body.ExternalAzureClientId = plan.Auth.ExternalAzureClientId.ValueStringPointer()
+	}
+	if !plan.Auth.ExternalAzureEnabled.IsNull() {
+		body.ExternalAzureEnabled = plan.Auth.ExternalAzureEnabled.ValueBoolPointer()
+	}
+	
 	updateExternalProvider(plan.Auth.ExternalBitbucket, &body.ExternalBitbucketEnabled, &body.ExternalBitbucketClientId, &body.ExternalBitbucketSecret, nil, nil)
+	
 	updateExternalProvider(plan.Auth.ExternalDiscord, &body.ExternalDiscordEnabled, &body.ExternalDiscordClientId, &body.ExternalDiscordSecret, nil, nil)
+	// Handle direct Discord properties
+	if !plan.Auth.ExternalDiscordClientId.IsNull() {
+		body.ExternalDiscordClientId = plan.Auth.ExternalDiscordClientId.ValueStringPointer()
+	}
+	if !plan.Auth.ExternalDiscordEnabled.IsNull() {
+		body.ExternalDiscordEnabled = plan.Auth.ExternalDiscordEnabled.ValueBoolPointer()
+	}
+	
 	updateExternalProvider(plan.Auth.ExternalFacebook, &body.ExternalFacebookEnabled, &body.ExternalFacebookClientId, &body.ExternalFacebookSecret, nil, nil)
+	// Handle direct Facebook properties
+	if !plan.Auth.ExternalFacebookClientId.IsNull() {
+		body.ExternalFacebookClientId = plan.Auth.ExternalFacebookClientId.ValueStringPointer()
+	}
+	if !plan.Auth.ExternalFacebookEnabled.IsNull() {
+		body.ExternalFacebookEnabled = plan.Auth.ExternalFacebookEnabled.ValueBoolPointer()
+	}
 	updateExternalProvider(plan.Auth.ExternalFigma, &body.ExternalFigmaEnabled, &body.ExternalFigmaClientId, &body.ExternalFigmaSecret, nil, nil)
 	updateExternalProvider(plan.Auth.ExternalGithub, &body.ExternalGithubEnabled, &body.ExternalGithubClientId, &body.ExternalGithubSecret, nil, nil)
 	
@@ -940,7 +1204,15 @@ func (r *SettingsResource) updateAuthConfig(ctx context.Context, plan *SettingsR
 		body.ExternalGithubEnabled = plan.Auth.ExternalGithubEnabled.ValueBoolPointer()
 	}
 	updateExternalProvider(plan.Auth.ExternalGitlab, &body.ExternalGitlabEnabled, &body.ExternalGitlabClientId, &body.ExternalGitlabSecret, nil, &body.ExternalGitlabUrl)
+	
 	updateExternalProvider(plan.Auth.ExternalGoogle, &body.ExternalGoogleEnabled, &body.ExternalGoogleClientId, &body.ExternalGoogleSecret, &body.ExternalGoogleAdditionalClientIds, nil)
+	// Handle direct Google properties
+	if !plan.Auth.ExternalGoogleClientId.IsNull() {
+		body.ExternalGoogleClientId = plan.Auth.ExternalGoogleClientId.ValueStringPointer()
+	}
+	if !plan.Auth.ExternalGoogleEnabled.IsNull() {
+		body.ExternalGoogleEnabled = plan.Auth.ExternalGoogleEnabled.ValueBoolPointer()
+	}
 	updateExternalProvider(plan.Auth.ExternalKakao, &body.ExternalKakaoEnabled, &body.ExternalKakaoClientId, &body.ExternalKakaoSecret, nil, nil)
 	updateExternalProvider(plan.Auth.ExternalKeycloak, &body.ExternalKeycloakEnabled, &body.ExternalKeycloakClientId, &body.ExternalKeycloakSecret, nil, &body.ExternalKeycloakUrl)
 	updateExternalProvider(plan.Auth.ExternalLinkedinOidc, &body.ExternalLinkedinOidcEnabled, &body.ExternalLinkedinOidcClientId, &body.ExternalLinkedinOidcSecret, nil, nil)
