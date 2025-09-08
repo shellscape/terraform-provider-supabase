@@ -4,7 +4,9 @@
 package settings
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -34,6 +36,25 @@ type StorageFeatureImageTransformation struct {
 // StorageFeatureS3Protocol represents S3 protocol feature configuration
 type StorageFeatureS3Protocol struct {
 	Enabled types.Bool `tfsdk:"enabled"`
+}
+
+// Custom types for API requests with correct camelCase JSON tags
+type CustomStorageUpdateBody struct {
+	FileSizeLimit *int64                  `json:"fileSizeLimit,omitempty"`
+	Features      *CustomStorageFeatures  `json:"features,omitempty"`
+}
+
+type CustomStorageFeatures struct {
+	ImageTransformation *CustomStorageFeatureImageTransformation `json:"imageTransformation,omitempty"`
+	S3Protocol          *CustomStorageFeatureS3Protocol          `json:"s3Protocol,omitempty"`
+}
+
+type CustomStorageFeatureImageTransformation struct {
+	Enabled bool `json:"enabled"`
+}
+
+type CustomStorageFeatureS3Protocol struct {
+	Enabled bool `json:"enabled"`
 }
 
 func GetStorageSchemaAttributes() map[string]schema.Attribute {
@@ -114,7 +135,7 @@ func ReadStorageConfig(ctx context.Context, client *api.ClientWithResponses, sta
 
 // UpdateStorageConfig updates storage configuration via the API
 func UpdateStorageConfig(ctx context.Context, client *api.ClientWithResponses, plan *SettingsResourceModel) diag.Diagnostics {
-	body := api.UpdateStorageConfigBody{}
+	body := CustomStorageUpdateBody{}
 
 	if !plan.Storage.FileSizeLimit.IsNull() {
 		val := plan.Storage.FileSizeLimit.ValueInt64()
@@ -122,24 +143,30 @@ func UpdateStorageConfig(ctx context.Context, client *api.ClientWithResponses, p
 	}
 
 	if plan.Storage.Features != nil {
-		features := &api.StorageFeatures{}
+		features := &CustomStorageFeatures{}
 
 		if plan.Storage.Features.ImageTransformation != nil && !plan.Storage.Features.ImageTransformation.Enabled.IsNull() {
-			features.ImageTransformation = api.StorageFeatureImageTransformation{
+			features.ImageTransformation = &CustomStorageFeatureImageTransformation{
 				Enabled: plan.Storage.Features.ImageTransformation.Enabled.ValueBool(),
 			}
 		}
 
-		body.Features = features
-
-		// Handle S3Protocol - add to request body as additional property
 		if plan.Storage.Features.S3Protocol != nil && !plan.Storage.Features.S3Protocol.Enabled.IsNull() {
-			// Since API doesn't have s3Protocol in generated types, we'll handle it via raw JSON in the request
-			// This is a workaround until the API types are updated
+			features.S3Protocol = &CustomStorageFeatureS3Protocol{
+				Enabled: plan.Storage.Features.S3Protocol.Enabled.ValueBool(),
+			}
 		}
+
+		body.Features = features
 	}
 
-	httpResp, err := client.V1UpdateStorageConfigWithResponse(ctx, plan.ProjectRef.ValueString(), body)
+	// Use custom HTTP request with proper JSON marshaling
+	jsonBody, err := json.Marshal(body)
+	if err != nil {
+		return diag.Diagnostics{diag.NewErrorDiagnostic("Client Error", fmt.Sprintf("Unable to marshal storage settings: %s", err))}
+	}
+
+	httpResp, err := client.V1UpdateStorageConfigWithBodyWithResponse(ctx, plan.ProjectRef.ValueString(), "application/json", bytes.NewReader(jsonBody))
 	if err != nil {
 		return diag.Diagnostics{diag.NewErrorDiagnostic("Client Error", fmt.Sprintf("Unable to update storage settings: %s", err))}
 	}
