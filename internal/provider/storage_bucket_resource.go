@@ -330,10 +330,14 @@ func (r *StorageBucketResource) makeStorageAPIRequest(ctx context.Context, metho
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 
-	// Get the Authorization header from the Management API client
-	// We'll extract the token and reuse it for the Storage API
+	// Get the appropriate authorization header for storage operations
+	authHeader, err := r.getAuthorizationHeader(ctx, projectRef)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get authorization header: %w", err)
+	}
+	
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", r.getAuthorizationHeader())
+	req.Header.Set("Authorization", authHeader)
 
 	httpClient := &http.Client{}
 	httpResp, err := httpClient.Do(req)
@@ -348,6 +352,10 @@ func (r *StorageBucketResource) makeStorageAPIRequest(ctx context.Context, metho
 	}
 
 	if httpResp.StatusCode < 200 || httpResp.StatusCode >= 300 {
+		// If authentication failed, invalidate cached tokens and potentially retry
+		if httpResp.StatusCode == 401 || httpResp.StatusCode == 403 {
+			r.providerData.TokenManager.InvalidateProjectTokens(projectRef)
+		}
 		return nil, fmt.Errorf("API error (status %d): %s", httpResp.StatusCode, string(respBody))
 	}
 
@@ -376,8 +384,13 @@ func (r *StorageBucketResource) makeStorageAPIRequest(ctx context.Context, metho
 	return nil, nil
 }
 
-func (r *StorageBucketResource) getAuthorizationHeader() string {
-	return "Bearer " + r.providerData.AccessToken
+func (r *StorageBucketResource) getAuthorizationHeader(ctx context.Context, projectRef string) (string, error) {
+	// Use token manager to get the appropriate token for storage operations
+	serviceRoleToken, err := r.providerData.TokenManager.GetServiceRoleToken(ctx, projectRef)
+	if err != nil {
+		return "", fmt.Errorf("failed to get service role token: %w", err)
+	}
+	return "Bearer " + serviceRoleToken, nil
 }
 
 func (r *StorageBucketResource) updateDataFromBucket(data *StorageBucketResourceModel, bucket *StorageBucket) {

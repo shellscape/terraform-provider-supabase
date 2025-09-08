@@ -1,6 +1,3 @@
-// Copyright (c) HashiCorp, Inc.
-// SPDX-License-Identifier: MPL-2.0
-
 package provider
 
 import (
@@ -14,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/supabase/cli/pkg/api"
-	
+
 	"github.com/shellscape/terraform-provider-supabase/internal/provider/settings"
 )
 
@@ -84,10 +81,14 @@ func (p *SupabaseProvider) Configure(ctx context.Context, req provider.Configure
 		}),
 	)
 
-	// Create provider data with both Management API client and access token
+	// Create token manager for automatic token exchange
+	tokenManager := NewTokenManager(client, data.AccessToken.ValueString())
+
+	// Create provider data with Management API client, access token, and token manager
 	providerData := &settings.SupabaseProviderData{
 		ManagementClient: client,
 		AccessToken:      data.AccessToken.ValueString(),
+		TokenManager:     tokenManager,
 	}
 
 	resp.DataSourceData = providerData

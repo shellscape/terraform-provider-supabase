@@ -9,8 +9,31 @@ import (
 	"gopkg.in/h2non/gock.v1"
 )
 
+// mockApiKeysForTokenExchange sets up the mock for the API keys endpoint
+// This is required for token exchange in storage operations
+func mockApiKeysForTokenExchange() {
+	gock.New("https://api.supabase.com").
+		Get("/v1/projects/mayuaycdtijbctgqbycg/api-keys").
+		MatchParam("reveal", "false").
+		Times(10).  // Allow multiple calls for caching
+		Reply(200).
+		JSON([]map[string]interface{}{
+			{
+				"api_key": "service_role_jwt_token_here",
+				"name":    "service_role",
+			},
+			{
+				"api_key": "anon_key_here",
+				"name":    "anon",
+			},
+		})
+}
+
 func TestAccStorageBucketResourceOptionalFields(t *testing.T) {
 	defer gock.OffAll()
+
+	// Mock API keys endpoint for token exchange
+	mockApiKeysForTokenExchange()
 
 	// Mock Storage API calls for bucket with null optional fields
 	gock.New("https://mayuaycdtijbctgqbycg.supabase.co").
@@ -62,6 +85,9 @@ func TestAccStorageBucketResourceOptionalFields(t *testing.T) {
 func TestAccStorageBucketResourceErrorHandling(t *testing.T) {
 	defer gock.OffAll()
 
+	// Mock API keys endpoint for token exchange
+	mockApiKeysForTokenExchange()
+
 	// Mock Storage API creation failure
 	gock.New("https://mayuaycdtijbctgqbycg.supabase.co").
 		Post("/storage/v1/bucket").
@@ -84,6 +110,9 @@ func TestAccStorageBucketResourceErrorHandling(t *testing.T) {
 
 func TestAccStorageBucketResourceUpdateFailure(t *testing.T) {
 	defer gock.OffAll()
+
+	// Mock API keys endpoint for token exchange
+	mockApiKeysForTokenExchange()
 
 	// Mock successful creation
 	gock.New("https://mayuaycdtijbctgqbycg.supabase.co").
@@ -138,6 +167,9 @@ func TestAccStorageBucketResourceUpdateFailure(t *testing.T) {
 
 func TestAccStorageBucketResourceNotFound(t *testing.T) {
 	defer gock.OffAll()
+
+	// Mock API keys endpoint for token exchange
+	mockApiKeysForTokenExchange()
 
 	// Mock successful creation
 	gock.New("https://mayuaycdtijbctgqbycg.supabase.co").
@@ -200,6 +232,9 @@ func TestAccStorageBucketResourceNotFound(t *testing.T) {
 func TestAccStorageBucketResourceComplexMimeTypes(t *testing.T) {
 	defer gock.OffAll()
 
+	// Mock API keys endpoint for token exchange
+	mockApiKeysForTokenExchange()
+
 	// Mock creation with complex MIME types
 	gock.New("https://mayuaycdtijbctgqbycg.supabase.co").
 		Post("/storage/v1/bucket").
@@ -257,6 +292,9 @@ func TestAccStorageBucketResourceComplexMimeTypes(t *testing.T) {
 
 func TestAccStorageBucketResourceDeleteFailure(t *testing.T) {
 	defer gock.OffAll()
+
+	// Mock API keys endpoint for token exchange
+	mockApiKeysForTokenExchange()
 
 	// Mock successful creation
 	gock.New("https://mayuaycdtijbctgqbycg.supabase.co").

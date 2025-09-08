@@ -12,6 +12,23 @@ func TestAccStorageBucketResource(t *testing.T) {
 	defer gock.OffAll()
 	gock.Observe(gock.DumpRequest)
 
+	// Mock API keys endpoint for token exchange
+	gock.New("https://api.supabase.com").
+		Get("/v1/projects/mayuaycdtijbctgqbycg/api-keys").
+		MatchParam("reveal", "false").
+		Times(10).  // Allow multiple calls for caching
+		Reply(200).
+		JSON([]map[string]interface{}{
+			{
+				"api_key": "service_role_jwt_token_here",
+				"name":    "service_role",
+			},
+			{
+				"api_key": "anon_key_here", 
+				"name":    "anon",
+			},
+		})
+
 	// ==> STEP 1: CREATE <==
 	// Mock creation
 	gock.New("https://mayuaycdtijbctgqbycg.supabase.co").

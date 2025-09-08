@@ -4,6 +4,9 @@
 
 1. Create a Personal Access Token in the [Supabase Dashboard](https://supabase.com/dashboard/account/tokens) by going to `Account preferences` > `Access Tokens`.
 2. Save your access token locally to `access-token` file or a secure credentials store.
+
+   **Note**: This single management token handles all authentication automatically. The provider will exchange it for project-specific tokens when needed for operations like storage bucket management.
+
 3. Create `module/provider.tf` with the following contents:
 
 ```tf
@@ -212,6 +215,55 @@ serve(async (req) => {
 
 When you run `terraform -chdir=module apply`, the provider will deploy your TypeScript functions to Supabase's global edge network.
 
+## Managing Storage Buckets
+
+You can create and manage storage buckets using the `supabase_storage_bucket` resource. The provider automatically handles authentication for storage operations using automatic token exchange.
+
+Create a `module/storage.tf` file:
+
+```tf
+# Create a public bucket for user avatars
+resource "supabase_storage_bucket" "user_avatars" {
+  project_ref        = var.linked_project
+  name               = "user-avatars"
+  public             = true
+  file_size_limit    = 5242880  # 5MB
+  allowed_mime_types = ["image/jpeg", "image/png", "image/webp"]
+}
+
+# Create a private bucket for documents
+resource "supabase_storage_bucket" "user_documents" {
+  project_ref        = var.linked_project
+  name               = "user-documents"
+  public             = false
+  file_size_limit    = 104857600  # 100MB
+  allowed_mime_types = [
+    "application/pdf",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+  ]
+}
+
+# Create a bucket with no restrictions
+resource "supabase_storage_bucket" "general_uploads" {
+  project_ref = var.linked_project
+  name        = "general-uploads"
+  public      = false
+  # No file_size_limit or allowed_mime_types means no restrictions
+}
+```
+
+### Authentication Handling
+
+The storage bucket resource automatically handles authentication by:
+
+1. Using your management access token to fetch project-level API keys
+2. Extracting the service role JWT token for the project
+3. Using the service role JWT for all storage API operations
+4. Caching tokens to avoid repeated API calls
+
+This means you only need to configure your management token once in the provider configuration - all storage operations work seamlessly.
+
 ## Querying Storage Buckets
 
 You can retrieve information about your project's storage buckets using the `supabase_storage_buckets` data source.
@@ -227,6 +279,17 @@ data "supabase_storage_buckets" "all" {
 # Output bucket information
 output "bucket_names" {
   value = [for bucket in data.supabase_storage_buckets.all.buckets : bucket.name]
+}
+
+# Output bucket details
+output "bucket_details" {
+  value = {
+    for bucket in data.supabase_storage_buckets.all.buckets : bucket.name => {
+      id     = bucket.id
+      public = bucket.public
+      owner  = bucket.owner
+    }
+  }
 }
 ```
 

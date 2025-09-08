@@ -11,6 +11,7 @@ This provider enables you to:
 - Version control your project settings in Git
 - Set up CI/CD pipelines for automatically provisioning projects and branches  
 - Deploy and manage Edge Functions
+- Create and manage storage buckets with automatic authentication
 - Query storage bucket information
 
 ## Getting Started
@@ -93,11 +94,41 @@ resource "supabase_edge_function" "hello" {
   verify_jwt  = false
 }
 
+# Create a storage bucket
+resource "supabase_storage_bucket" "user_avatars" {
+  project_ref        = var.linked_project
+  name               = "user-avatars"
+  public             = true
+  file_size_limit    = 5242880  # 5MB
+  allowed_mime_types = ["image/jpeg", "image/png", "image/webp"]
+}
+
 # Query storage buckets
 data "supabase_storage_buckets" "all" {
   project_ref = var.linked_project
 }
 ```
+
+## Authentication Details
+
+The Supabase provider uses automatic token exchange to handle different authentication requirements:
+
+### Single Token Configuration
+Configure only your management access token:
+```bash
+export SUPABASE_ACCESS_TOKEN="sbp_your_management_token"
+```
+
+### Automatic Token Exchange
+The provider automatically:
+- Uses management tokens for project, settings, and configuration operations
+- Exchanges management tokens for project-level JWTs for storage operations
+- Caches tokens to minimize API calls
+- Handles token refresh on authentication failures
+
+### Supported Operations
+- **Management API** (direct): Projects, settings, branches, edge functions, webhooks
+- **Storage API** (automatic JWT): Bucket creation, management, and file operations
 
 ## Contributing
 

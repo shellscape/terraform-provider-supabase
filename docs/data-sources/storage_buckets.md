@@ -13,7 +13,7 @@ description: |-
 
 # supabase_storage_buckets (Data Source)
 
-Retrieves a list of storage buckets for a Supabase project.
+Retrieves a list of storage buckets for a Supabase project using the management API.
 
 ## Example Usage
 

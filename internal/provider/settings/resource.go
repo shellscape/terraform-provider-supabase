@@ -1,6 +1,3 @@
-// Copyright (c) HashiCorp, Inc.
-// SPDX-License-Identifier: MPL-2.0
-
 package settings
 
 import (
@@ -20,6 +17,14 @@ import (
 type SupabaseProviderData struct {
 	ManagementClient *api.ClientWithResponses
 	AccessToken      string
+	TokenManager     TokenManager // Interface for token management
+}
+
+// TokenManager interface for getting appropriate tokens for different APIs
+type TokenManager interface {
+	GetServiceRoleToken(ctx context.Context, projectRef string) (string, error)
+	GetManagementToken() string
+	InvalidateProjectTokens(projectRef string)
 }
 
 // Ensure provider defined types fully satisfy framework interfaces.

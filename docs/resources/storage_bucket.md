@@ -3,7 +3,7 @@
 page_title: "supabase_storage_bucket Resource - terraform-provider-supabase"
 subcategory: ""
 description: |-
-  Manages a Supabase storage bucket.
+  Manages a Supabase storage bucket with automatic authentication handling.
   Refer to the Supabase Storage documentation https://supabase.com/docs/guides/storage for more information.
   Example Usage
   
@@ -18,7 +18,9 @@ description: |-
 
 # supabase_storage_bucket (Resource)
 
-Manages a Supabase storage bucket.
+Manages a Supabase storage bucket with automatic authentication handling.
+
+This resource uses the Supabase Storage API and automatically handles authentication by exchanging your management access token for the appropriate project-level service role JWT token. No additional authentication configuration is required.
 
 Refer to the [Supabase Storage documentation](https://supabase.com/docs/guides/storage) for more information.
 

@@ -1,6 +1,3 @@
-// Copyright (c) HashiCorp, Inc.
-// SPDX-License-Identifier: MPL-2.0
-
 package settings
 
 import (
@@ -93,11 +90,27 @@ func ReadAuthConfig(ctx context.Context, client *api.ClientWithResponses, state 
 	// For brevity, showing key examples of each type:
 
 	// Map API response to state fields (embedded structs, so access directly)
-	if resp.JSON200.ExternalGithubEnabled != nil {
-		state.Auth.ExternalGithubEnabled = types.BoolPointerValue(resp.JSON200.ExternalGithubEnabled)
-	}
-	if resp.JSON200.ExternalGithubClientId != nil {
-		state.Auth.ExternalGithubClientId = types.StringPointerValue(resp.JSON200.ExternalGithubClientId)
+	// Only populate direct fields if nested structure is not being used
+	if state.Auth.ExternalGithub == nil {
+		if resp.JSON200.ExternalGithubEnabled != nil {
+			state.Auth.ExternalGithubEnabled = types.BoolPointerValue(resp.JSON200.ExternalGithubEnabled)
+		}
+		if resp.JSON200.ExternalGithubClientId != nil {
+			state.Auth.ExternalGithubClientId = types.StringPointerValue(resp.JSON200.ExternalGithubClientId)
+		}
+	} else {
+		// When using nested structure, populate the nested fields instead
+		if resp.JSON200.ExternalGithubEnabled != nil {
+			state.Auth.ExternalGithub.Enabled = types.BoolPointerValue(resp.JSON200.ExternalGithubEnabled)
+		}
+		if resp.JSON200.ExternalGithubClientId != nil {
+			state.Auth.ExternalGithub.ClientId = types.StringPointerValue(resp.JSON200.ExternalGithubClientId)
+		}
+		// Note: Secret is not returned by the API for security reasons, so we preserve the configured value
+		
+		// Ensure direct fields are null when using nested configuration
+		state.Auth.ExternalGithubEnabled = types.BoolNull()
+		state.Auth.ExternalGithubClientId = types.StringNull()
 	}
 	
 	if resp.JSON200.DisableSignup != nil {
@@ -140,6 +153,22 @@ func UpdateAuthConfig(ctx context.Context, client *api.ClientWithResponses, plan
 	if !plan.Auth.ExternalGithubClientId.IsNull() && !plan.Auth.ExternalGithubClientId.IsUnknown() {
 		val := plan.Auth.ExternalGithubClientId.ValueString()
 		body.ExternalGithubClientId = &val
+	}
+
+	// Handle nested ExternalGithub configuration
+	if plan.Auth.ExternalGithub != nil {
+		if !plan.Auth.ExternalGithub.Enabled.IsNull() && !plan.Auth.ExternalGithub.Enabled.IsUnknown() {
+			val := plan.Auth.ExternalGithub.Enabled.ValueBool()
+			body.ExternalGithubEnabled = &val
+		}
+		if !plan.Auth.ExternalGithub.ClientId.IsNull() && !plan.Auth.ExternalGithub.ClientId.IsUnknown() {
+			val := plan.Auth.ExternalGithub.ClientId.ValueString()
+			body.ExternalGithubClientId = &val
+		}
+		if !plan.Auth.ExternalGithub.Secret.IsNull() && !plan.Auth.ExternalGithub.Secret.IsUnknown() {
+			val := plan.Auth.ExternalGithub.Secret.ValueString()
+			body.ExternalGithubSecret = &val
+		}
 	}
 
 	resp, err := client.V1UpdateAuthServiceConfigWithResponse(ctx, plan.ProjectRef.ValueString(), body)
