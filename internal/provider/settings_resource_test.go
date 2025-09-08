@@ -683,4 +683,62 @@ resource "supabase_settings" "test" {
 }
 `
 
+func TestAccSettingsResourceExternalGithubEnabledDirect(t *testing.T) {
+	defer gock.OffAll()
+	gock.Observe(gock.DumpRequest)
+
+	// Test that users can set the external_github_enabled as direct property
+	gock.New("https://api.supabase.com").
+		Patch("/v1/projects/mayuaycdtijbctgqbycg/config/auth").
+		Reply(http.StatusOK).
+		JSON(api.AuthConfigResponse{
+			ExternalGithubEnabled: Ptr(true),
+			MailerOtpExp:          3600,
+			MfaPhoneOtpLength:     6,
+			SmsOtpLength:          6,
+		})
+
+	// Read operations
+	gock.New("https://api.supabase.com").
+		Get("/v1/projects/mayuaycdtijbctgqbycg/config/auth").
+		Times(2).
+		Reply(http.StatusOK).
+		JSON(api.AuthConfigResponse{
+			ExternalGithubEnabled: Ptr(true),
+			MailerOtpExp:          3600,
+			MfaPhoneOtpLength:     6,
+			SmsOtpLength:          6,
+		})
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSettingsResourceConfigExternalGithubEnabledDirect,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("supabase_settings.test", "project_ref", "mayuaycdtijbctgqbycg"),
+					resource.TestCheckResourceAttr("supabase_settings.test", "auth.external_github_enabled", "true"),
+					resource.TestCheckResourceAttr("supabase_settings.test", "auth.mailer_otp_exp", "3600"),
+					resource.TestCheckResourceAttr("supabase_settings.test", "auth.mfa_phone_otp_length", "6"),
+					resource.TestCheckResourceAttr("supabase_settings.test", "auth.sms_otp_length", "6"),
+				),
+			},
+		},
+	})
+}
+
+const testAccSettingsResourceConfigExternalGithubEnabledDirect = `
+resource "supabase_settings" "test" {
+  project_ref = "mayuaycdtijbctgqbycg"
+
+  auth = {
+    mailer_otp_exp = 3600
+    mfa_phone_otp_length = 6
+    sms_otp_length = 6
+    external_github_enabled = true
+  }
+}
+`
+
 // Note: Ptr function is available from utils.go

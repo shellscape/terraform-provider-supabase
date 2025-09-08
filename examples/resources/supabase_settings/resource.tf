@@ -29,8 +29,9 @@ resource "supabase_settings" "production" {
       secret    = "your_github_client_secret"
     }
     
-    # OR use direct property (for CDKTF compatibility)
+    # OR use direct properties (for CDKTF compatibility)
     # external_github_client_id = "your_github_client_id"
+    # external_github_enabled = true
   }
 
   storage = {

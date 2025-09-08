@@ -122,6 +122,7 @@ type AuthConfig struct {
 	ExternalFigma        *ExternalProviderConfig `tfsdk:"external_figma"`
 	ExternalGithub       *ExternalProviderConfig `tfsdk:"external_github"`
 	ExternalGithubClientId types.String          `tfsdk:"external_github_client_id"`
+	ExternalGithubEnabled types.Bool             `tfsdk:"external_github_enabled"`
 	ExternalGitlab       *ExternalProviderConfig `tfsdk:"external_gitlab"`
 	ExternalGoogle       *ExternalProviderConfig `tfsdk:"external_google"`
 	ExternalKakao        *ExternalProviderConfig `tfsdk:"external_kakao"`
@@ -469,6 +470,10 @@ func (r *SettingsResource) Schema(ctx context.Context, req resource.SchemaReques
 					},
 					"external_github_client_id": schema.StringAttribute{
 						MarkdownDescription: "GitHub OAuth client ID (direct property)",
+						Optional:            true,
+					},
+					"external_github_enabled": schema.BoolAttribute{
+						MarkdownDescription: "GitHub OAuth enabled (direct property)",
 						Optional:            true,
 					},
 					"external_gitlab": schema.SingleNestedAttribute{
@@ -847,11 +852,18 @@ func (r *SettingsResource) readAuthConfig(ctx context.Context, state *SettingsRe
 	state.Auth.ExternalDiscord = readExternalProvider(state.Auth.ExternalDiscord, resp.ExternalDiscordEnabled, resp.ExternalDiscordClientId, "", nil, nil)
 	state.Auth.ExternalFacebook = readExternalProvider(state.Auth.ExternalFacebook, resp.ExternalFacebookEnabled, resp.ExternalFacebookClientId, "", nil, nil)
 	state.Auth.ExternalFigma = readExternalProvider(state.Auth.ExternalFigma, resp.ExternalFigmaEnabled, resp.ExternalFigmaClientId, "", nil, nil)
-	state.Auth.ExternalGithub = readExternalProvider(state.Auth.ExternalGithub, resp.ExternalGithubEnabled, resp.ExternalGithubClientId, "", nil, nil)
+	// Only populate nested ExternalGithub if it was originally configured (not using direct properties)
+	if state.Auth.ExternalGithub != nil {
+		state.Auth.ExternalGithub = readExternalProvider(state.Auth.ExternalGithub, resp.ExternalGithubEnabled, resp.ExternalGithubClientId, "", nil, nil)
+	}
 	
 	// Only set direct ExternalGithubClientId if it was configured (not part of nested external_github)
 	if !state.Auth.ExternalGithubClientId.IsNull() {
 		state.Auth.ExternalGithubClientId = types.StringPointerValue(resp.ExternalGithubClientId)
+	}
+	// Only set direct ExternalGithubEnabled if it was configured (not part of nested external_github)
+	if !state.Auth.ExternalGithubEnabled.IsNull() {
+		state.Auth.ExternalGithubEnabled = types.BoolPointerValue(resp.ExternalGithubEnabled)
 	}
 	state.Auth.ExternalGitlab = readExternalProvider(state.Auth.ExternalGitlab, resp.ExternalGitlabEnabled, resp.ExternalGitlabClientId, "", nil, resp.ExternalGitlabUrl)
 	state.Auth.ExternalGoogle = readExternalProvider(state.Auth.ExternalGoogle, resp.ExternalGoogleEnabled, resp.ExternalGoogleClientId, "", resp.ExternalGoogleAdditionalClientIds, nil)
@@ -922,6 +934,10 @@ func (r *SettingsResource) updateAuthConfig(ctx context.Context, plan *SettingsR
 	// Handle direct ExternalGithubClientId property
 	if !plan.Auth.ExternalGithubClientId.IsNull() {
 		body.ExternalGithubClientId = plan.Auth.ExternalGithubClientId.ValueStringPointer()
+	}
+	// Handle direct ExternalGithubEnabled property
+	if !plan.Auth.ExternalGithubEnabled.IsNull() {
+		body.ExternalGithubEnabled = plan.Auth.ExternalGithubEnabled.ValueBoolPointer()
 	}
 	updateExternalProvider(plan.Auth.ExternalGitlab, &body.ExternalGitlabEnabled, &body.ExternalGitlabClientId, &body.ExternalGitlabSecret, nil, &body.ExternalGitlabUrl)
 	updateExternalProvider(plan.Auth.ExternalGoogle, &body.ExternalGoogleEnabled, &body.ExternalGoogleClientId, &body.ExternalGoogleSecret, &body.ExternalGoogleAdditionalClientIds, nil)
