@@ -7,29 +7,33 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/shellscape/terraform-provider-supabase/internal/provider/settings"
 )
 
 // Test the new struct-based model
 func TestSettingsResourceModel(t *testing.T) {
-	model := SettingsResourceModel{
+	model := settings.SettingsResourceModel{
 		ProjectRef: types.StringValue("test-project"),
-		Database: &DatabaseConfig{
+		Database: &settings.DatabaseConfig{
 			StatementTimeout: types.StringValue("10s"),
 			MaxConnections:   types.Int64Value(100),
 		},
-		Auth: &AuthConfig{
-			SiteUrl:        types.StringValue("http://localhost:3000"),
-			DisableSignup:  types.BoolValue(false),
-			SmtpHost:      types.StringValue("smtp.example.com"),
-			SmtpPort:      types.Int64Value(587),
-			SmtpUser:      types.StringValue("user@example.com"),
+		Auth: &settings.AuthConfig{
+			AuthLocalConfig: settings.AuthLocalConfig{
+				DisableSignup:  types.BoolValue(false),
+			},
+			AuthMailerConfig: settings.AuthMailerConfig{
+				SmtpHost:      types.StringValue("smtp.example.com"),
+				SmtpPort:      types.Int64Value(587),
+				SmtpUser:      types.StringValue("user@example.com"),
+			},
 		},
-		Api: &ApiConfig{
+		Api: &settings.ApiConfig{
 			DbSchema:          types.StringValue("public"),
 			DbExtraSearchPath: types.StringValue("public,extensions"),
 			MaxRows:          types.Int64Value(1000),
 		},
-		Network: &NetworkConfig{
+		Network: &settings.NetworkConfig{
 			DbAllowedCidrs: []types.String{
 				types.StringValue("0.0.0.0/0"),
 			},
@@ -48,12 +52,12 @@ func TestSettingsResourceModel(t *testing.T) {
 		t.Errorf("Expected max_connections 100, got %d", model.Database.MaxConnections.ValueInt64())
 	}
 	
-	if model.Auth.SiteUrl.ValueString() != "http://localhost:3000" {
-		t.Errorf("Expected site_url 'http://localhost:3000', got %s", model.Auth.SiteUrl.ValueString())
-	}
-	
 	if model.Auth.DisableSignup.ValueBool() != false {
 		t.Errorf("Expected disable_signup false, got %t", model.Auth.DisableSignup.ValueBool())
+	}
+	
+	if model.Auth.SmtpHost.ValueString() != "smtp.example.com" {
+		t.Errorf("Expected smtp_host 'smtp.example.com', got %s", model.Auth.SmtpHost.ValueString())
 	}
 	
 	if model.Api.MaxRows.ValueInt64() != 1000 {
@@ -69,48 +73,32 @@ func TestSettingsResourceModel(t *testing.T) {
 	}
 }
 
-func TestParseInt(t *testing.T) {
-	tests := []struct {
-		input    string
-		expected int64
-	}{
-		{"587", 587},
-		{"25", 25},
-		{"0", 0},
-		{"invalid", 0}, // should default to 0 on error
-		{"", 0},        // should default to 0 on error
-	}
-
-	for _, test := range tests {
-		result := parseInt(test.input)
-		if result != test.expected {
-			t.Errorf("parseInt(%s): expected %d, got %d", test.input, test.expected, result)
-		}
-	}
-}
 
 func TestExternalProviders(t *testing.T) {
-	model := SettingsResourceModel{
+	model := settings.SettingsResourceModel{
 		ProjectRef: types.StringValue("test-project"),
-		Auth: &AuthConfig{
-			SiteUrl:        types.StringValue("http://localhost:3000"),
-			DisableSignup:  types.BoolValue(false),
-			ExternalGithub: &ExternalProviderConfig{
-				Enabled:  types.BoolValue(true),
-				ClientId: types.StringValue("github_client_123"),
-				Secret:   types.StringValue("github_secret_456"),
+		Auth: &settings.AuthConfig{
+			AuthLocalConfig: settings.AuthLocalConfig{
+				DisableSignup:  types.BoolValue(false),
 			},
-			ExternalGoogle: &ExternalProviderConfig{
-				Enabled:              types.BoolValue(true),
-				ClientId:             types.StringValue("google_client_789"),
-				Secret:               types.StringValue("google_secret_000"),
-				AdditionalClientIds:  types.StringValue("additional_123,additional_456"),
-			},
-			ExternalKeycloak: &ExternalProviderConfig{
-				Enabled:  types.BoolValue(true),
-				ClientId: types.StringValue("keycloak_client"),
-				Secret:   types.StringValue("keycloak_secret"),
-				Url:      types.StringValue("https://keycloak.example.com"),
+			AuthExternalConfig: settings.AuthExternalConfig{
+				ExternalGithub: &settings.ExternalProviderConfig{
+					Enabled:  types.BoolValue(true),
+					ClientId: types.StringValue("github_client_123"),
+					Secret:   types.StringValue("github_secret_456"),
+				},
+				ExternalGoogle: &settings.ExternalProviderConfig{
+					Enabled:              types.BoolValue(true),
+					ClientId:             types.StringValue("google_client_789"),
+					Secret:               types.StringValue("google_secret_000"),
+					AdditionalClientIds:  types.StringValue("additional_123,additional_456"),
+				},
+				ExternalKeycloak: &settings.ExternalProviderConfig{
+					Enabled:  types.BoolValue(true),
+					ClientId: types.StringValue("keycloak_client"),
+					Secret:   types.StringValue("keycloak_secret"),
+					Url:      types.StringValue("https://keycloak.example.com"),
+				},
 			},
 		},
 	}

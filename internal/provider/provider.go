@@ -14,6 +14,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/supabase/cli/pkg/api"
+	
+	"github.com/shellscape/terraform-provider-supabase/internal/provider/settings"
 )
 
 // Ensure SupabaseProvider satisfies various provider interfaces.
@@ -33,11 +35,6 @@ type SupabaseProviderModel struct {
 	AccessToken types.String `tfsdk:"access_token"`
 }
 
-// SupabaseProviderData holds the configured clients and credentials for resources and data sources
-type SupabaseProviderData struct {
-	ManagementClient *api.ClientWithResponses
-	AccessToken      string
-}
 
 func (p *SupabaseProvider) Metadata(ctx context.Context, req provider.MetadataRequest, resp *provider.MetadataResponse) {
 	resp.TypeName = "supabase"
@@ -88,7 +85,7 @@ func (p *SupabaseProvider) Configure(ctx context.Context, req provider.Configure
 	)
 
 	// Create provider data with both Management API client and access token
-	providerData := &SupabaseProviderData{
+	providerData := &settings.SupabaseProviderData{
 		ManagementClient: client,
 		AccessToken:      data.AccessToken.ValueString(),
 	}

@@ -32,7 +32,7 @@ testacc:
 generate-json:
 	@echo "Generating docs/schema.json"
 
-	@mkdir temp
+	@mkdir -p temp
 
 	@echo "  - Generating temporary build"
 	@go build -o ./temp

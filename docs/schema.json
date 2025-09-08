@@ -320,13 +320,13 @@
                   "attributes": {
                     "api_max_request_duration": {
                       "type": "number",
-                      "description": "Maximum request duration for auth API in seconds",
+                      "description": "Maximum request duration in seconds",
                       "description_kind": "markdown",
                       "optional": true
                     },
                     "db_max_pool_size": {
                       "type": "number",
-                      "description": "Maximum database connection pool size for auth service",
+                      "description": "Maximum database connection pool size",
                       "description_kind": "markdown",
                       "optional": true
                     },
@@ -338,7 +338,7 @@
                     },
                     "external_anonymous_users_enabled": {
                       "type": "bool",
-                      "description": "Enable anonymous users for external authentication",
+                      "description": "Enable anonymous users",
                       "description_kind": "markdown",
                       "optional": true
                     },
@@ -347,39 +347,59 @@
                         "attributes": {
                           "additional_client_ids": {
                             "type": "string",
-                            "description": "Additional Apple client IDs (comma-separated)",
+                            "description": "Additional Apple client IDs",
                             "description_kind": "markdown",
                             "optional": true
                           },
                           "client_id": {
                             "type": "string",
-                            "description": "Apple OAuth client ID",
+                            "description": "Apple OAuth application client ID",
                             "description_kind": "markdown",
-                            "optional": true
+                            "optional": true,
+                            "sensitive": true
                           },
                           "enabled": {
                             "type": "bool",
-                            "description": "Enable Apple OAuth provider",
+                            "description": "Enable Apple provider",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "redirect_uri": {
+                            "type": "string",
+                            "description": "Apple OAuth redirect URI",
                             "description_kind": "markdown",
                             "optional": true
                           },
                           "secret": {
                             "type": "string",
-                            "description": "Apple OAuth client secret",
+                            "description": "Apple OAuth application secret",
                             "description_kind": "markdown",
                             "optional": true,
                             "sensitive": true
                           },
                           "url": {
                             "type": "string",
-                            "description": "Apple OAuth server URL (for self-hosted providers)",
+                            "description": "Apple OAuth server URL",
                             "description_kind": "markdown",
                             "optional": true
                           }
                         },
                         "nesting_mode": "single"
                       },
-                      "description": "Apple OAuth provider configuration",
+                      "description": "Apple OAuth configuration",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "external_apple_client_id": {
+                      "type": "string",
+                      "description": "Apple OAuth client ID (direct)",
+                      "description_kind": "markdown",
+                      "optional": true,
+                      "sensitive": true
+                    },
+                    "external_apple_enabled": {
+                      "type": "bool",
+                      "description": "Enable Apple OAuth (direct)",
                       "description_kind": "markdown",
                       "optional": true
                     },
@@ -388,39 +408,59 @@
                         "attributes": {
                           "additional_client_ids": {
                             "type": "string",
-                            "description": "Additional Azure client IDs (comma-separated)",
+                            "description": "Additional Azure client IDs",
                             "description_kind": "markdown",
                             "optional": true
                           },
                           "client_id": {
                             "type": "string",
-                            "description": "Azure OAuth client ID",
+                            "description": "Azure OAuth application client ID",
                             "description_kind": "markdown",
-                            "optional": true
+                            "optional": true,
+                            "sensitive": true
                           },
                           "enabled": {
                             "type": "bool",
-                            "description": "Enable Azure OAuth provider",
+                            "description": "Enable Azure provider",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "redirect_uri": {
+                            "type": "string",
+                            "description": "Azure OAuth redirect URI",
                             "description_kind": "markdown",
                             "optional": true
                           },
                           "secret": {
                             "type": "string",
-                            "description": "Azure OAuth client secret",
+                            "description": "Azure OAuth application secret",
                             "description_kind": "markdown",
                             "optional": true,
                             "sensitive": true
                           },
                           "url": {
                             "type": "string",
-                            "description": "Azure OAuth server URL (for self-hosted providers)",
+                            "description": "Azure OAuth server URL",
                             "description_kind": "markdown",
                             "optional": true
                           }
                         },
                         "nesting_mode": "single"
                       },
-                      "description": "Azure OAuth provider configuration",
+                      "description": "Azure OAuth configuration",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "external_azure_client_id": {
+                      "type": "string",
+                      "description": "Azure OAuth client ID (direct)",
+                      "description_kind": "markdown",
+                      "optional": true,
+                      "sensitive": true
+                    },
+                    "external_azure_enabled": {
+                      "type": "bool",
+                      "description": "Enable Azure OAuth (direct)",
                       "description_kind": "markdown",
                       "optional": true
                     },
@@ -429,39 +469,46 @@
                         "attributes": {
                           "additional_client_ids": {
                             "type": "string",
-                            "description": "Additional Bitbucket client IDs (comma-separated)",
+                            "description": "Additional Bitbucket client IDs",
                             "description_kind": "markdown",
                             "optional": true
                           },
                           "client_id": {
                             "type": "string",
-                            "description": "Bitbucket OAuth client ID",
+                            "description": "Bitbucket OAuth application client ID",
                             "description_kind": "markdown",
-                            "optional": true
+                            "optional": true,
+                            "sensitive": true
                           },
                           "enabled": {
                             "type": "bool",
-                            "description": "Enable Bitbucket OAuth provider",
+                            "description": "Enable Bitbucket provider",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "redirect_uri": {
+                            "type": "string",
+                            "description": "Bitbucket OAuth redirect URI",
                             "description_kind": "markdown",
                             "optional": true
                           },
                           "secret": {
                             "type": "string",
-                            "description": "Bitbucket OAuth client secret",
+                            "description": "Bitbucket OAuth application secret",
                             "description_kind": "markdown",
                             "optional": true,
                             "sensitive": true
                           },
                           "url": {
                             "type": "string",
-                            "description": "Bitbucket OAuth server URL (for self-hosted providers)",
+                            "description": "Bitbucket OAuth server URL",
                             "description_kind": "markdown",
                             "optional": true
                           }
                         },
                         "nesting_mode": "single"
                       },
-                      "description": "Bitbucket OAuth provider configuration",
+                      "description": "Bitbucket OAuth configuration",
                       "description_kind": "markdown",
                       "optional": true
                     },
@@ -470,39 +517,59 @@
                         "attributes": {
                           "additional_client_ids": {
                             "type": "string",
-                            "description": "Additional Discord client IDs (comma-separated)",
+                            "description": "Additional Discord client IDs",
                             "description_kind": "markdown",
                             "optional": true
                           },
                           "client_id": {
                             "type": "string",
-                            "description": "Discord OAuth client ID",
+                            "description": "Discord OAuth application client ID",
                             "description_kind": "markdown",
-                            "optional": true
+                            "optional": true,
+                            "sensitive": true
                           },
                           "enabled": {
                             "type": "bool",
-                            "description": "Enable Discord OAuth provider",
+                            "description": "Enable Discord provider",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "redirect_uri": {
+                            "type": "string",
+                            "description": "Discord OAuth redirect URI",
                             "description_kind": "markdown",
                             "optional": true
                           },
                           "secret": {
                             "type": "string",
-                            "description": "Discord OAuth client secret",
+                            "description": "Discord OAuth application secret",
                             "description_kind": "markdown",
                             "optional": true,
                             "sensitive": true
                           },
                           "url": {
                             "type": "string",
-                            "description": "Discord OAuth server URL (for self-hosted providers)",
+                            "description": "Discord OAuth server URL",
                             "description_kind": "markdown",
                             "optional": true
                           }
                         },
                         "nesting_mode": "single"
                       },
-                      "description": "Discord OAuth provider configuration",
+                      "description": "Discord OAuth configuration",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "external_discord_client_id": {
+                      "type": "string",
+                      "description": "Discord OAuth client ID (direct)",
+                      "description_kind": "markdown",
+                      "optional": true,
+                      "sensitive": true
+                    },
+                    "external_discord_enabled": {
+                      "type": "bool",
+                      "description": "Enable Discord OAuth (direct)",
                       "description_kind": "markdown",
                       "optional": true
                     },
@@ -517,39 +584,59 @@
                         "attributes": {
                           "additional_client_ids": {
                             "type": "string",
-                            "description": "Additional Facebook client IDs (comma-separated)",
+                            "description": "Additional Facebook client IDs",
                             "description_kind": "markdown",
                             "optional": true
                           },
                           "client_id": {
                             "type": "string",
-                            "description": "Facebook OAuth client ID",
+                            "description": "Facebook OAuth application client ID",
                             "description_kind": "markdown",
-                            "optional": true
+                            "optional": true,
+                            "sensitive": true
                           },
                           "enabled": {
                             "type": "bool",
-                            "description": "Enable Facebook OAuth provider",
+                            "description": "Enable Facebook provider",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "redirect_uri": {
+                            "type": "string",
+                            "description": "Facebook OAuth redirect URI",
                             "description_kind": "markdown",
                             "optional": true
                           },
                           "secret": {
                             "type": "string",
-                            "description": "Facebook OAuth client secret",
+                            "description": "Facebook OAuth application secret",
                             "description_kind": "markdown",
                             "optional": true,
                             "sensitive": true
                           },
                           "url": {
                             "type": "string",
-                            "description": "Facebook OAuth server URL (for self-hosted providers)",
+                            "description": "Facebook OAuth server URL",
                             "description_kind": "markdown",
                             "optional": true
                           }
                         },
                         "nesting_mode": "single"
                       },
-                      "description": "Facebook OAuth provider configuration",
+                      "description": "Facebook OAuth configuration",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "external_facebook_client_id": {
+                      "type": "string",
+                      "description": "Facebook OAuth client ID (direct)",
+                      "description_kind": "markdown",
+                      "optional": true,
+                      "sensitive": true
+                    },
+                    "external_facebook_enabled": {
+                      "type": "bool",
+                      "description": "Enable Facebook OAuth (direct)",
                       "description_kind": "markdown",
                       "optional": true
                     },
@@ -558,39 +645,46 @@
                         "attributes": {
                           "additional_client_ids": {
                             "type": "string",
-                            "description": "Additional Figma client IDs (comma-separated)",
+                            "description": "Additional Figma client IDs",
                             "description_kind": "markdown",
                             "optional": true
                           },
                           "client_id": {
                             "type": "string",
-                            "description": "Figma OAuth client ID",
+                            "description": "Figma OAuth application client ID",
                             "description_kind": "markdown",
-                            "optional": true
+                            "optional": true,
+                            "sensitive": true
                           },
                           "enabled": {
                             "type": "bool",
-                            "description": "Enable Figma OAuth provider",
+                            "description": "Enable Figma provider",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "redirect_uri": {
+                            "type": "string",
+                            "description": "Figma OAuth redirect URI",
                             "description_kind": "markdown",
                             "optional": true
                           },
                           "secret": {
                             "type": "string",
-                            "description": "Figma OAuth client secret",
+                            "description": "Figma OAuth application secret",
                             "description_kind": "markdown",
                             "optional": true,
                             "sensitive": true
                           },
                           "url": {
                             "type": "string",
-                            "description": "Figma OAuth server URL (for self-hosted providers)",
+                            "description": "Figma OAuth server URL",
                             "description_kind": "markdown",
                             "optional": true
                           }
                         },
                         "nesting_mode": "single"
                       },
-                      "description": "Figma OAuth provider configuration",
+                      "description": "Figma OAuth configuration",
                       "description_kind": "markdown",
                       "optional": true
                     },
@@ -599,39 +693,59 @@
                         "attributes": {
                           "additional_client_ids": {
                             "type": "string",
-                            "description": "Additional GitHub client IDs (comma-separated)",
+                            "description": "Additional GitHub client IDs",
                             "description_kind": "markdown",
                             "optional": true
                           },
                           "client_id": {
                             "type": "string",
-                            "description": "GitHub OAuth client ID",
+                            "description": "GitHub OAuth application client ID",
                             "description_kind": "markdown",
-                            "optional": true
+                            "optional": true,
+                            "sensitive": true
                           },
                           "enabled": {
                             "type": "bool",
-                            "description": "Enable GitHub OAuth provider",
+                            "description": "Enable GitHub provider",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "redirect_uri": {
+                            "type": "string",
+                            "description": "GitHub OAuth redirect URI",
                             "description_kind": "markdown",
                             "optional": true
                           },
                           "secret": {
                             "type": "string",
-                            "description": "GitHub OAuth client secret",
+                            "description": "GitHub OAuth application secret",
                             "description_kind": "markdown",
                             "optional": true,
                             "sensitive": true
                           },
                           "url": {
                             "type": "string",
-                            "description": "GitHub OAuth server URL (for self-hosted providers)",
+                            "description": "GitHub OAuth server URL",
                             "description_kind": "markdown",
                             "optional": true
                           }
                         },
                         "nesting_mode": "single"
                       },
-                      "description": "GitHub OAuth provider configuration",
+                      "description": "GitHub OAuth configuration",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "external_github_client_id": {
+                      "type": "string",
+                      "description": "GitHub OAuth client ID (direct)",
+                      "description_kind": "markdown",
+                      "optional": true,
+                      "sensitive": true
+                    },
+                    "external_github_enabled": {
+                      "type": "bool",
+                      "description": "Enable GitHub OAuth (direct)",
                       "description_kind": "markdown",
                       "optional": true
                     },
@@ -640,39 +754,46 @@
                         "attributes": {
                           "additional_client_ids": {
                             "type": "string",
-                            "description": "Additional GitLab client IDs (comma-separated)",
+                            "description": "Additional GitLab client IDs",
                             "description_kind": "markdown",
                             "optional": true
                           },
                           "client_id": {
                             "type": "string",
-                            "description": "GitLab OAuth client ID",
+                            "description": "GitLab OAuth application client ID",
                             "description_kind": "markdown",
-                            "optional": true
+                            "optional": true,
+                            "sensitive": true
                           },
                           "enabled": {
                             "type": "bool",
-                            "description": "Enable GitLab OAuth provider",
+                            "description": "Enable GitLab provider",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "redirect_uri": {
+                            "type": "string",
+                            "description": "GitLab OAuth redirect URI",
                             "description_kind": "markdown",
                             "optional": true
                           },
                           "secret": {
                             "type": "string",
-                            "description": "GitLab OAuth client secret",
+                            "description": "GitLab OAuth application secret",
                             "description_kind": "markdown",
                             "optional": true,
                             "sensitive": true
                           },
                           "url": {
                             "type": "string",
-                            "description": "GitLab OAuth server URL (for self-hosted providers)",
+                            "description": "GitLab OAuth server URL",
                             "description_kind": "markdown",
                             "optional": true
                           }
                         },
                         "nesting_mode": "single"
                       },
-                      "description": "GitLab OAuth provider configuration",
+                      "description": "GitLab OAuth configuration",
                       "description_kind": "markdown",
                       "optional": true
                     },
@@ -681,39 +802,65 @@
                         "attributes": {
                           "additional_client_ids": {
                             "type": "string",
-                            "description": "Additional Google client IDs (comma-separated)",
+                            "description": "Additional Google client IDs",
                             "description_kind": "markdown",
                             "optional": true
                           },
                           "client_id": {
                             "type": "string",
-                            "description": "Google OAuth client ID",
+                            "description": "Google OAuth application client ID",
                             "description_kind": "markdown",
-                            "optional": true
+                            "optional": true,
+                            "sensitive": true
                           },
                           "enabled": {
                             "type": "bool",
-                            "description": "Enable Google OAuth provider",
+                            "description": "Enable Google provider",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "redirect_uri": {
+                            "type": "string",
+                            "description": "Google OAuth redirect URI",
                             "description_kind": "markdown",
                             "optional": true
                           },
                           "secret": {
                             "type": "string",
-                            "description": "Google OAuth client secret",
+                            "description": "Google OAuth application secret",
                             "description_kind": "markdown",
                             "optional": true,
                             "sensitive": true
                           },
                           "url": {
                             "type": "string",
-                            "description": "Google OAuth server URL (for self-hosted providers)",
+                            "description": "Google OAuth server URL",
                             "description_kind": "markdown",
                             "optional": true
                           }
                         },
                         "nesting_mode": "single"
                       },
-                      "description": "Google OAuth provider configuration",
+                      "description": "Google OAuth configuration",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "external_google_client_id": {
+                      "type": "string",
+                      "description": "Google OAuth client ID (direct)",
+                      "description_kind": "markdown",
+                      "optional": true,
+                      "sensitive": true
+                    },
+                    "external_google_enabled": {
+                      "type": "bool",
+                      "description": "Enable Google OAuth (direct)",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "external_google_skip_nonce_check": {
+                      "type": "bool",
+                      "description": "Skip nonce check for Google OAuth",
                       "description_kind": "markdown",
                       "optional": true
                     },
@@ -722,39 +869,46 @@
                         "attributes": {
                           "additional_client_ids": {
                             "type": "string",
-                            "description": "Additional Kakao client IDs (comma-separated)",
+                            "description": "Additional Kakao client IDs",
                             "description_kind": "markdown",
                             "optional": true
                           },
                           "client_id": {
                             "type": "string",
-                            "description": "Kakao OAuth client ID",
+                            "description": "Kakao OAuth application client ID",
                             "description_kind": "markdown",
-                            "optional": true
+                            "optional": true,
+                            "sensitive": true
                           },
                           "enabled": {
                             "type": "bool",
-                            "description": "Enable Kakao OAuth provider",
+                            "description": "Enable Kakao provider",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "redirect_uri": {
+                            "type": "string",
+                            "description": "Kakao OAuth redirect URI",
                             "description_kind": "markdown",
                             "optional": true
                           },
                           "secret": {
                             "type": "string",
-                            "description": "Kakao OAuth client secret",
+                            "description": "Kakao OAuth application secret",
                             "description_kind": "markdown",
                             "optional": true,
                             "sensitive": true
                           },
                           "url": {
                             "type": "string",
-                            "description": "Kakao OAuth server URL (for self-hosted providers)",
+                            "description": "Kakao OAuth server URL",
                             "description_kind": "markdown",
                             "optional": true
                           }
                         },
                         "nesting_mode": "single"
                       },
-                      "description": "Kakao OAuth provider configuration",
+                      "description": "Kakao OAuth configuration",
                       "description_kind": "markdown",
                       "optional": true
                     },
@@ -763,39 +917,46 @@
                         "attributes": {
                           "additional_client_ids": {
                             "type": "string",
-                            "description": "Additional Keycloak client IDs (comma-separated)",
+                            "description": "Additional Keycloak client IDs",
                             "description_kind": "markdown",
                             "optional": true
                           },
                           "client_id": {
                             "type": "string",
-                            "description": "Keycloak OAuth client ID",
+                            "description": "Keycloak OAuth application client ID",
                             "description_kind": "markdown",
-                            "optional": true
+                            "optional": true,
+                            "sensitive": true
                           },
                           "enabled": {
                             "type": "bool",
-                            "description": "Enable Keycloak OAuth provider",
+                            "description": "Enable Keycloak provider",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "redirect_uri": {
+                            "type": "string",
+                            "description": "Keycloak OAuth redirect URI",
                             "description_kind": "markdown",
                             "optional": true
                           },
                           "secret": {
                             "type": "string",
-                            "description": "Keycloak OAuth client secret",
+                            "description": "Keycloak OAuth application secret",
                             "description_kind": "markdown",
                             "optional": true,
                             "sensitive": true
                           },
                           "url": {
                             "type": "string",
-                            "description": "Keycloak OAuth server URL (for self-hosted providers)",
+                            "description": "Keycloak OAuth server URL",
                             "description_kind": "markdown",
                             "optional": true
                           }
                         },
                         "nesting_mode": "single"
                       },
-                      "description": "Keycloak OAuth provider configuration",
+                      "description": "Keycloak OAuth configuration",
                       "description_kind": "markdown",
                       "optional": true
                     },
@@ -804,39 +965,46 @@
                         "attributes": {
                           "additional_client_ids": {
                             "type": "string",
-                            "description": "Additional LinkedIn OIDC client IDs (comma-separated)",
+                            "description": "Additional LinkedIn OIDC client IDs",
                             "description_kind": "markdown",
                             "optional": true
                           },
                           "client_id": {
                             "type": "string",
-                            "description": "LinkedIn OIDC OAuth client ID",
+                            "description": "LinkedIn OIDC OAuth application client ID",
                             "description_kind": "markdown",
-                            "optional": true
+                            "optional": true,
+                            "sensitive": true
                           },
                           "enabled": {
                             "type": "bool",
-                            "description": "Enable LinkedIn OIDC OAuth provider",
+                            "description": "Enable LinkedIn OIDC provider",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "redirect_uri": {
+                            "type": "string",
+                            "description": "LinkedIn OIDC OAuth redirect URI",
                             "description_kind": "markdown",
                             "optional": true
                           },
                           "secret": {
                             "type": "string",
-                            "description": "LinkedIn OIDC OAuth client secret",
+                            "description": "LinkedIn OIDC OAuth application secret",
                             "description_kind": "markdown",
                             "optional": true,
                             "sensitive": true
                           },
                           "url": {
                             "type": "string",
-                            "description": "LinkedIn OIDC OAuth server URL (for self-hosted providers)",
+                            "description": "LinkedIn OIDC OAuth server URL",
                             "description_kind": "markdown",
                             "optional": true
                           }
                         },
                         "nesting_mode": "single"
                       },
-                      "description": "LinkedIn OIDC OAuth provider configuration",
+                      "description": "LinkedIn OIDC OAuth configuration",
                       "description_kind": "markdown",
                       "optional": true
                     },
@@ -845,39 +1013,52 @@
                         "attributes": {
                           "additional_client_ids": {
                             "type": "string",
-                            "description": "Additional Notion client IDs (comma-separated)",
+                            "description": "Additional Notion client IDs",
                             "description_kind": "markdown",
                             "optional": true
                           },
                           "client_id": {
                             "type": "string",
-                            "description": "Notion OAuth client ID",
+                            "description": "Notion OAuth application client ID",
                             "description_kind": "markdown",
-                            "optional": true
+                            "optional": true,
+                            "sensitive": true
                           },
                           "enabled": {
                             "type": "bool",
-                            "description": "Enable Notion OAuth provider",
+                            "description": "Enable Notion provider",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "redirect_uri": {
+                            "type": "string",
+                            "description": "Notion OAuth redirect URI",
                             "description_kind": "markdown",
                             "optional": true
                           },
                           "secret": {
                             "type": "string",
-                            "description": "Notion OAuth client secret",
+                            "description": "Notion OAuth application secret",
                             "description_kind": "markdown",
                             "optional": true,
                             "sensitive": true
                           },
                           "url": {
                             "type": "string",
-                            "description": "Notion OAuth server URL (for self-hosted providers)",
+                            "description": "Notion OAuth server URL",
                             "description_kind": "markdown",
                             "optional": true
                           }
                         },
                         "nesting_mode": "single"
                       },
-                      "description": "Notion OAuth provider configuration",
+                      "description": "Notion OAuth configuration",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "external_phone_enabled": {
+                      "type": "bool",
+                      "description": "Enable phone authentication",
                       "description_kind": "markdown",
                       "optional": true
                     },
@@ -886,39 +1067,46 @@
                         "attributes": {
                           "additional_client_ids": {
                             "type": "string",
-                            "description": "Additional Slack client IDs (comma-separated)",
+                            "description": "Additional Slack client IDs",
                             "description_kind": "markdown",
                             "optional": true
                           },
                           "client_id": {
                             "type": "string",
-                            "description": "Slack OAuth client ID",
+                            "description": "Slack OAuth application client ID",
                             "description_kind": "markdown",
-                            "optional": true
+                            "optional": true,
+                            "sensitive": true
                           },
                           "enabled": {
                             "type": "bool",
-                            "description": "Enable Slack OAuth provider",
+                            "description": "Enable Slack provider",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "redirect_uri": {
+                            "type": "string",
+                            "description": "Slack OAuth redirect URI",
                             "description_kind": "markdown",
                             "optional": true
                           },
                           "secret": {
                             "type": "string",
-                            "description": "Slack OAuth client secret",
+                            "description": "Slack OAuth application secret",
                             "description_kind": "markdown",
                             "optional": true,
                             "sensitive": true
                           },
                           "url": {
                             "type": "string",
-                            "description": "Slack OAuth server URL (for self-hosted providers)",
+                            "description": "Slack OAuth server URL",
                             "description_kind": "markdown",
                             "optional": true
                           }
                         },
                         "nesting_mode": "single"
                       },
-                      "description": "Slack OAuth provider configuration",
+                      "description": "Slack OAuth configuration",
                       "description_kind": "markdown",
                       "optional": true
                     },
@@ -927,39 +1115,46 @@
                         "attributes": {
                           "additional_client_ids": {
                             "type": "string",
-                            "description": "Additional Slack OIDC client IDs (comma-separated)",
+                            "description": "Additional Slack OIDC client IDs",
                             "description_kind": "markdown",
                             "optional": true
                           },
                           "client_id": {
                             "type": "string",
-                            "description": "Slack OIDC OAuth client ID",
+                            "description": "Slack OIDC OAuth application client ID",
                             "description_kind": "markdown",
-                            "optional": true
+                            "optional": true,
+                            "sensitive": true
                           },
                           "enabled": {
                             "type": "bool",
-                            "description": "Enable Slack OIDC OAuth provider",
+                            "description": "Enable Slack OIDC provider",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "redirect_uri": {
+                            "type": "string",
+                            "description": "Slack OIDC OAuth redirect URI",
                             "description_kind": "markdown",
                             "optional": true
                           },
                           "secret": {
                             "type": "string",
-                            "description": "Slack OIDC OAuth client secret",
+                            "description": "Slack OIDC OAuth application secret",
                             "description_kind": "markdown",
                             "optional": true,
                             "sensitive": true
                           },
                           "url": {
                             "type": "string",
-                            "description": "Slack OIDC OAuth server URL (for self-hosted providers)",
+                            "description": "Slack OIDC OAuth server URL",
                             "description_kind": "markdown",
                             "optional": true
                           }
                         },
                         "nesting_mode": "single"
                       },
-                      "description": "Slack OIDC OAuth provider configuration",
+                      "description": "Slack OIDC OAuth configuration",
                       "description_kind": "markdown",
                       "optional": true
                     },
@@ -968,39 +1163,46 @@
                         "attributes": {
                           "additional_client_ids": {
                             "type": "string",
-                            "description": "Additional Spotify client IDs (comma-separated)",
+                            "description": "Additional Spotify client IDs",
                             "description_kind": "markdown",
                             "optional": true
                           },
                           "client_id": {
                             "type": "string",
-                            "description": "Spotify OAuth client ID",
+                            "description": "Spotify OAuth application client ID",
                             "description_kind": "markdown",
-                            "optional": true
+                            "optional": true,
+                            "sensitive": true
                           },
                           "enabled": {
                             "type": "bool",
-                            "description": "Enable Spotify OAuth provider",
+                            "description": "Enable Spotify provider",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "redirect_uri": {
+                            "type": "string",
+                            "description": "Spotify OAuth redirect URI",
                             "description_kind": "markdown",
                             "optional": true
                           },
                           "secret": {
                             "type": "string",
-                            "description": "Spotify OAuth client secret",
+                            "description": "Spotify OAuth application secret",
                             "description_kind": "markdown",
                             "optional": true,
                             "sensitive": true
                           },
                           "url": {
                             "type": "string",
-                            "description": "Spotify OAuth server URL (for self-hosted providers)",
+                            "description": "Spotify OAuth server URL",
                             "description_kind": "markdown",
                             "optional": true
                           }
                         },
                         "nesting_mode": "single"
                       },
-                      "description": "Spotify OAuth provider configuration",
+                      "description": "Spotify OAuth configuration",
                       "description_kind": "markdown",
                       "optional": true
                     },
@@ -1009,39 +1211,46 @@
                         "attributes": {
                           "additional_client_ids": {
                             "type": "string",
-                            "description": "Additional Twitch client IDs (comma-separated)",
+                            "description": "Additional Twitch client IDs",
                             "description_kind": "markdown",
                             "optional": true
                           },
                           "client_id": {
                             "type": "string",
-                            "description": "Twitch OAuth client ID",
+                            "description": "Twitch OAuth application client ID",
                             "description_kind": "markdown",
-                            "optional": true
+                            "optional": true,
+                            "sensitive": true
                           },
                           "enabled": {
                             "type": "bool",
-                            "description": "Enable Twitch OAuth provider",
+                            "description": "Enable Twitch provider",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "redirect_uri": {
+                            "type": "string",
+                            "description": "Twitch OAuth redirect URI",
                             "description_kind": "markdown",
                             "optional": true
                           },
                           "secret": {
                             "type": "string",
-                            "description": "Twitch OAuth client secret",
+                            "description": "Twitch OAuth application secret",
                             "description_kind": "markdown",
                             "optional": true,
                             "sensitive": true
                           },
                           "url": {
                             "type": "string",
-                            "description": "Twitch OAuth server URL (for self-hosted providers)",
+                            "description": "Twitch OAuth server URL",
                             "description_kind": "markdown",
                             "optional": true
                           }
                         },
                         "nesting_mode": "single"
                       },
-                      "description": "Twitch OAuth provider configuration",
+                      "description": "Twitch OAuth configuration",
                       "description_kind": "markdown",
                       "optional": true
                     },
@@ -1050,39 +1259,46 @@
                         "attributes": {
                           "additional_client_ids": {
                             "type": "string",
-                            "description": "Additional Twitter client IDs (comma-separated)",
+                            "description": "Additional Twitter client IDs",
                             "description_kind": "markdown",
                             "optional": true
                           },
                           "client_id": {
                             "type": "string",
-                            "description": "Twitter OAuth client ID",
+                            "description": "Twitter OAuth application client ID",
                             "description_kind": "markdown",
-                            "optional": true
+                            "optional": true,
+                            "sensitive": true
                           },
                           "enabled": {
                             "type": "bool",
-                            "description": "Enable Twitter OAuth provider",
+                            "description": "Enable Twitter provider",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "redirect_uri": {
+                            "type": "string",
+                            "description": "Twitter OAuth redirect URI",
                             "description_kind": "markdown",
                             "optional": true
                           },
                           "secret": {
                             "type": "string",
-                            "description": "Twitter OAuth client secret",
+                            "description": "Twitter OAuth application secret",
                             "description_kind": "markdown",
                             "optional": true,
                             "sensitive": true
                           },
                           "url": {
                             "type": "string",
-                            "description": "Twitter OAuth server URL (for self-hosted providers)",
+                            "description": "Twitter OAuth server URL",
                             "description_kind": "markdown",
                             "optional": true
                           }
                         },
                         "nesting_mode": "single"
                       },
-                      "description": "Twitter OAuth provider configuration",
+                      "description": "Twitter OAuth configuration",
                       "description_kind": "markdown",
                       "optional": true
                     },
@@ -1091,39 +1307,46 @@
                         "attributes": {
                           "additional_client_ids": {
                             "type": "string",
-                            "description": "Additional WorkOS client IDs (comma-separated)",
+                            "description": "Additional WorkOS client IDs",
                             "description_kind": "markdown",
                             "optional": true
                           },
                           "client_id": {
                             "type": "string",
-                            "description": "WorkOS OAuth client ID",
+                            "description": "WorkOS OAuth application client ID",
                             "description_kind": "markdown",
-                            "optional": true
+                            "optional": true,
+                            "sensitive": true
                           },
                           "enabled": {
                             "type": "bool",
-                            "description": "Enable WorkOS OAuth provider",
+                            "description": "Enable WorkOS provider",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "redirect_uri": {
+                            "type": "string",
+                            "description": "WorkOS OAuth redirect URI",
                             "description_kind": "markdown",
                             "optional": true
                           },
                           "secret": {
                             "type": "string",
-                            "description": "WorkOS OAuth client secret",
+                            "description": "WorkOS OAuth application secret",
                             "description_kind": "markdown",
                             "optional": true,
                             "sensitive": true
                           },
                           "url": {
                             "type": "string",
-                            "description": "WorkOS OAuth server URL (for self-hosted providers)",
+                            "description": "WorkOS OAuth server URL",
                             "description_kind": "markdown",
                             "optional": true
                           }
                         },
                         "nesting_mode": "single"
                       },
-                      "description": "WorkOS OAuth provider configuration",
+                      "description": "WorkOS OAuth configuration",
                       "description_kind": "markdown",
                       "optional": true
                     },
@@ -1132,39 +1355,159 @@
                         "attributes": {
                           "additional_client_ids": {
                             "type": "string",
-                            "description": "Additional Zoom client IDs (comma-separated)",
+                            "description": "Additional Zoom client IDs",
                             "description_kind": "markdown",
                             "optional": true
                           },
                           "client_id": {
                             "type": "string",
-                            "description": "Zoom OAuth client ID",
+                            "description": "Zoom OAuth application client ID",
                             "description_kind": "markdown",
-                            "optional": true
+                            "optional": true,
+                            "sensitive": true
                           },
                           "enabled": {
                             "type": "bool",
-                            "description": "Enable Zoom OAuth provider",
+                            "description": "Enable Zoom provider",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "redirect_uri": {
+                            "type": "string",
+                            "description": "Zoom OAuth redirect URI",
                             "description_kind": "markdown",
                             "optional": true
                           },
                           "secret": {
                             "type": "string",
-                            "description": "Zoom OAuth client secret",
+                            "description": "Zoom OAuth application secret",
                             "description_kind": "markdown",
                             "optional": true,
                             "sensitive": true
                           },
                           "url": {
                             "type": "string",
-                            "description": "Zoom OAuth server URL (for self-hosted providers)",
+                            "description": "Zoom OAuth server URL",
                             "description_kind": "markdown",
                             "optional": true
                           }
                         },
                         "nesting_mode": "single"
                       },
-                      "description": "Zoom OAuth provider configuration",
+                      "description": "Zoom OAuth configuration",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "hook_custom_access_token_enabled": {
+                      "type": "bool",
+                      "description": "Enable custom access token hook",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "hook_custom_access_token_secrets": {
+                      "type": "string",
+                      "description": "Custom access token hook secrets",
+                      "description_kind": "markdown",
+                      "optional": true,
+                      "sensitive": true
+                    },
+                    "hook_custom_access_token_uri": {
+                      "type": "string",
+                      "description": "Custom access token hook URI",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "hook_mfa_verification_attempt_enabled": {
+                      "type": "bool",
+                      "description": "Enable MFA verification attempt hook",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "hook_mfa_verification_attempt_secrets": {
+                      "type": "string",
+                      "description": "MFA verification attempt hook secrets",
+                      "description_kind": "markdown",
+                      "optional": true,
+                      "sensitive": true
+                    },
+                    "hook_mfa_verification_attempt_uri": {
+                      "type": "string",
+                      "description": "MFA verification attempt hook URI",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "hook_password_verification_attempt_enabled": {
+                      "type": "bool",
+                      "description": "Enable password verification attempt hook",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "hook_password_verification_attempt_secrets": {
+                      "type": "string",
+                      "description": "Password verification attempt hook secrets",
+                      "description_kind": "markdown",
+                      "optional": true,
+                      "sensitive": true
+                    },
+                    "hook_password_verification_attempt_uri": {
+                      "type": "string",
+                      "description": "Password verification attempt hook URI",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "hook_send_email_enabled": {
+                      "type": "bool",
+                      "description": "Enable send email hook",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "hook_send_email_secrets": {
+                      "type": "string",
+                      "description": "Send email hook secrets",
+                      "description_kind": "markdown",
+                      "optional": true,
+                      "sensitive": true
+                    },
+                    "hook_send_email_uri": {
+                      "type": "string",
+                      "description": "Send email hook URI",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "hook_send_sms_enabled": {
+                      "type": "bool",
+                      "description": "Enable send SMS hook",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "hook_send_sms_secrets": {
+                      "type": "string",
+                      "description": "Send SMS hook secrets",
+                      "description_kind": "markdown",
+                      "optional": true,
+                      "sensitive": true
+                    },
+                    "hook_send_sms_uri": {
+                      "type": "string",
+                      "description": "Send SMS hook URI",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "jwt_exp": {
+                      "type": "number",
+                      "description": "JWT token expiration time in seconds",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "mailer_allow_unverified_email_sign_ins": {
+                      "type": "bool",
+                      "description": "Allow sign-ins with unverified emails",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "mailer_autoconfirm": {
+                      "type": "bool",
+                      "description": "Automatically confirm user emails",
                       "description_kind": "markdown",
                       "optional": true
                     },
@@ -1174,9 +1517,225 @@
                       "description_kind": "markdown",
                       "optional": true
                     },
+                    "mailer_otp_length": {
+                      "type": "number",
+                      "description": "Email OTP length",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "mailer_secure_email_change_enabled": {
+                      "type": "bool",
+                      "description": "Enable secure email change process",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "mailer_subjects_confirmation": {
+                      "type": "string",
+                      "description": "Email confirmation subject template",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "mailer_subjects_email_change": {
+                      "type": "string",
+                      "description": "Email change subject template",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "mailer_subjects_invite": {
+                      "type": "string",
+                      "description": "User invite subject template",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "mailer_subjects_magic_link": {
+                      "type": "string",
+                      "description": "Magic link subject template",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "mailer_subjects_reauthentication": {
+                      "type": "string",
+                      "description": "Reauthentication subject template",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "mailer_subjects_recovery": {
+                      "type": "string",
+                      "description": "Password recovery subject template",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "mailer_templates_confirmation_content": {
+                      "type": "string",
+                      "description": "Email confirmation content template",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "mailer_templates_email_change_content": {
+                      "type": "string",
+                      "description": "Email change content template",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "mailer_templates_invite_content": {
+                      "type": "string",
+                      "description": "User invite content template",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "mailer_templates_magic_link_content": {
+                      "type": "string",
+                      "description": "Magic link content template",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "mailer_templates_reauthentication_content": {
+                      "type": "string",
+                      "description": "Reauthentication content template",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "mailer_templates_recovery_content": {
+                      "type": "string",
+                      "description": "Password recovery content template",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "mfa_max_enrolled_factors": {
+                      "type": "number",
+                      "description": "Maximum number of MFA factors a user can enroll",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "mfa_phone_enroll_enabled": {
+                      "type": "bool",
+                      "description": "Enable phone MFA enrollment",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "mfa_phone_max_frequency": {
+                      "type": "number",
+                      "description": "Maximum phone MFA verification attempts per hour",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
                     "mfa_phone_otp_length": {
                       "type": "number",
-                      "description": "Length of MFA phone OTP codes",
+                      "description": "Phone MFA OTP code length",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "mfa_phone_template": {
+                      "type": "string",
+                      "description": "Phone MFA SMS message template",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "mfa_phone_verify_enabled": {
+                      "type": "bool",
+                      "description": "Enable phone MFA verification",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "mfa_totp_enroll_enabled": {
+                      "type": "bool",
+                      "description": "Enable TOTP MFA enrollment",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "mfa_totp_verify_enabled": {
+                      "type": "bool",
+                      "description": "Enable TOTP MFA verification",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "mfa_web_authn_enroll_enabled": {
+                      "type": "bool",
+                      "description": "Enable WebAuthn MFA enrollment",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "mfa_web_authn_verify_enabled": {
+                      "type": "bool",
+                      "description": "Enable WebAuthn MFA verification",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "password_hibp_enabled": {
+                      "type": "bool",
+                      "description": "Enable Have I Been Pwned password validation",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "password_min_length": {
+                      "type": "number",
+                      "description": "Minimum password length",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "password_required_characters": {
+                      "type": "string",
+                      "description": "Required character types in passwords (e.g., lower, upper, number, special)",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "rate_limit_anonymous_users": {
+                      "type": "number",
+                      "description": "Rate limit for anonymous users per hour",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "rate_limit_email_sent": {
+                      "type": "number",
+                      "description": "Rate limit for emails sent per hour",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "rate_limit_otp": {
+                      "type": "number",
+                      "description": "Rate limit for OTP requests per hour",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "rate_limit_sms_sent": {
+                      "type": "number",
+                      "description": "Rate limit for SMS sent per hour",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "rate_limit_token_refresh": {
+                      "type": "number",
+                      "description": "Rate limit for token refresh requests per hour",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "rate_limit_verify": {
+                      "type": "number",
+                      "description": "Rate limit for verification requests per hour",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "refresh_token_rotation_enabled": {
+                      "type": "bool",
+                      "description": "Enable refresh token rotation",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "saml_allow_encrypted_assertions": {
+                      "type": "bool",
+                      "description": "Allow encrypted SAML assertions",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "saml_enabled": {
+                      "type": "bool",
+                      "description": "Enable SAML authentication",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "saml_external_url": {
+                      "type": "string",
+                      "description": "External SAML URL",
                       "description_kind": "markdown",
                       "optional": true
                     },
@@ -1188,16 +1747,58 @@
                     },
                     "security_captcha_provider": {
                       "type": "string",
-                      "description": "CAPTCHA provider",
+                      "description": "CAPTCHA provider (hcaptcha, recaptcha, turnstile)",
                       "description_kind": "markdown",
                       "optional": true
                     },
                     "security_captcha_secret": {
                       "type": "string",
-                      "description": "CAPTCHA secret key",
+                      "description": "CAPTCHA provider secret key",
                       "description_kind": "markdown",
                       "optional": true,
                       "sensitive": true
+                    },
+                    "security_manual_linking_enabled": {
+                      "type": "bool",
+                      "description": "Enable manual account linking",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "security_refresh_token_reuse_interval": {
+                      "type": "number",
+                      "description": "Refresh token reuse interval in seconds",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "security_update_password_require_reauthentication": {
+                      "type": "bool",
+                      "description": "Require reauthentication for password updates",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "sessions_inactivity_timeout": {
+                      "type": "number",
+                      "description": "Session inactivity timeout in seconds",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "sessions_single_per_user": {
+                      "type": "bool",
+                      "description": "Allow only one session per user",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "sessions_tags": {
+                      "type": "string",
+                      "description": "Session tags for categorization",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "sessions_timebox": {
+                      "type": "number",
+                      "description": "Session timebox duration in seconds",
+                      "description_kind": "markdown",
+                      "optional": true
                     },
                     "site_url": {
                       "type": "string",
@@ -1205,9 +1806,40 @@
                       "description_kind": "markdown",
                       "optional": true
                     },
+                    "sms_autoconfirm": {
+                      "type": "bool",
+                      "description": "Automatically confirm SMS OTP",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "sms_max_frequency": {
+                      "type": "number",
+                      "description": "Maximum SMS send frequency per hour",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "sms_messagebird_access_key": {
+                      "type": "string",
+                      "description": "MessageBird access key",
+                      "description_kind": "markdown",
+                      "optional": true,
+                      "sensitive": true
+                    },
+                    "sms_messagebird_originator": {
+                      "type": "string",
+                      "description": "MessageBird originator/sender ID",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "sms_otp_exp": {
+                      "type": "number",
+                      "description": "SMS OTP expiration time in seconds",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
                     "sms_otp_length": {
                       "type": "number",
-                      "description": "Length of SMS OTP codes",
+                      "description": "SMS OTP code length",
                       "description_kind": "markdown",
                       "optional": true
                     },
@@ -1217,9 +1849,119 @@
                       "description_kind": "markdown",
                       "optional": true
                     },
+                    "sms_template": {
+                      "type": "string",
+                      "description": "SMS message template",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "sms_test_otp": {
+                      "type": "string",
+                      "description": "Test SMS OTP code for development",
+                      "description_kind": "markdown",
+                      "optional": true,
+                      "sensitive": true
+                    },
+                    "sms_test_otp_valid_until": {
+                      "type": "string",
+                      "description": "Test SMS OTP valid until timestamp",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "sms_textlocal_api_key": {
+                      "type": "string",
+                      "description": "Textlocal API key",
+                      "description_kind": "markdown",
+                      "optional": true,
+                      "sensitive": true
+                    },
+                    "sms_textlocal_sender": {
+                      "type": "string",
+                      "description": "Textlocal sender name",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "sms_twilio_account_sid": {
+                      "type": "string",
+                      "description": "Twilio account SID",
+                      "description_kind": "markdown",
+                      "optional": true,
+                      "sensitive": true
+                    },
+                    "sms_twilio_auth_token": {
+                      "type": "string",
+                      "description": "Twilio auth token",
+                      "description_kind": "markdown",
+                      "optional": true,
+                      "sensitive": true
+                    },
+                    "sms_twilio_content_sid": {
+                      "type": "string",
+                      "description": "Twilio content SID",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "sms_twilio_message_service_sid": {
+                      "type": "string",
+                      "description": "Twilio message service SID",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "sms_twilio_verify_account_sid": {
+                      "type": "string",
+                      "description": "Twilio verify account SID",
+                      "description_kind": "markdown",
+                      "optional": true,
+                      "sensitive": true
+                    },
+                    "sms_twilio_verify_auth_token": {
+                      "type": "string",
+                      "description": "Twilio verify auth token",
+                      "description_kind": "markdown",
+                      "optional": true,
+                      "sensitive": true
+                    },
+                    "sms_twilio_verify_message_service_sid": {
+                      "type": "string",
+                      "description": "Twilio verify message service SID",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "sms_vonage_api_key": {
+                      "type": "string",
+                      "description": "Vonage API key",
+                      "description_kind": "markdown",
+                      "optional": true,
+                      "sensitive": true
+                    },
+                    "sms_vonage_api_secret": {
+                      "type": "string",
+                      "description": "Vonage API secret",
+                      "description_kind": "markdown",
+                      "optional": true,
+                      "sensitive": true
+                    },
+                    "sms_vonage_from": {
+                      "type": "string",
+                      "description": "Vonage sender number or name",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "smtp_admin_email": {
+                      "type": "string",
+                      "description": "SMTP admin email address",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
                     "smtp_host": {
                       "type": "string",
                       "description": "SMTP server hostname",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "smtp_max_frequency": {
+                      "type": "number",
+                      "description": "Maximum SMTP send frequency per hour",
                       "description_kind": "markdown",
                       "optional": true
                     },
@@ -1233,6 +1975,12 @@
                     "smtp_port": {
                       "type": "number",
                       "description": "SMTP server port",
+                      "description_kind": "markdown",
+                      "optional": true
+                    },
+                    "smtp_sender_name": {
+                      "type": "string",
+                      "description": "SMTP sender display name",
                       "description_kind": "markdown",
                       "optional": true
                     },
@@ -1478,6 +2226,22 @@
                               "nesting_mode": "single"
                             },
                             "description": "Image transformation feature configuration",
+                            "description_kind": "markdown",
+                            "optional": true
+                          },
+                          "s3_protocol": {
+                            "nested_type": {
+                              "attributes": {
+                                "enabled": {
+                                  "type": "bool",
+                                  "description": "Enable S3 protocol compatibility",
+                                  "description_kind": "markdown",
+                                  "optional": true
+                                }
+                              },
+                              "nesting_mode": "single"
+                            },
+                            "description": "S3 protocol feature configuration",
                             "description_kind": "markdown",
                             "optional": true
                           }

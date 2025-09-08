@@ -973,4 +973,120 @@ resource "supabase_settings" "test" {
 }
 `
 
+func TestAccSettingsResourceHookSendEmailEnabled(t *testing.T) {
+	defer gock.OffAll()
+	gock.Observe(gock.DumpRequest)
+
+	// Test that users can set hook_send_email_enabled
+	gock.New("https://api.supabase.com").
+		Patch("/v1/projects/mayuaycdtijbctgqbycg/config/auth").
+		Reply(http.StatusOK).
+		JSON(api.AuthConfigResponse{
+			HookSendEmailEnabled: Ptr(true),
+			MailerOtpExp:         3600,
+			MfaPhoneOtpLength:    6,
+			SmsOtpLength:         6,
+		})
+
+	// Read operations
+	gock.New("https://api.supabase.com").
+		Get("/v1/projects/mayuaycdtijbctgqbycg/config/auth").
+		Times(2).
+		Reply(http.StatusOK).
+		JSON(api.AuthConfigResponse{
+			HookSendEmailEnabled: Ptr(true),
+			MailerOtpExp:         3600,
+			MfaPhoneOtpLength:    6,
+			SmsOtpLength:         6,
+		})
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSettingsResourceConfigHookSendEmailEnabled,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("supabase_settings.test", "project_ref", "mayuaycdtijbctgqbycg"),
+					resource.TestCheckResourceAttr("supabase_settings.test", "auth.hook_send_email_enabled", "true"),
+					resource.TestCheckResourceAttr("supabase_settings.test", "auth.mailer_otp_exp", "3600"),
+					resource.TestCheckResourceAttr("supabase_settings.test", "auth.mfa_phone_otp_length", "6"),
+					resource.TestCheckResourceAttr("supabase_settings.test", "auth.sms_otp_length", "6"),
+				),
+			},
+		},
+	})
+}
+
+const testAccSettingsResourceConfigHookSendEmailEnabled = `
+resource "supabase_settings" "test" {
+  project_ref = "mayuaycdtijbctgqbycg"
+
+  auth = {
+    mailer_otp_exp = 3600
+    mfa_phone_otp_length = 6
+    sms_otp_length = 6
+    hook_send_email_enabled = true
+  }
+}
+`
+
+func TestAccSettingsResourceJwtExp(t *testing.T) {
+	defer gock.OffAll()
+	gock.Observe(gock.DumpRequest)
+
+	// Test that users can set jwt_exp
+	gock.New("https://api.supabase.com").
+		Patch("/v1/projects/mayuaycdtijbctgqbycg/config/auth").
+		Reply(http.StatusOK).
+		JSON(api.AuthConfigResponse{
+			JwtExp:            Ptr(7200),
+			MailerOtpExp:      3600,
+			MfaPhoneOtpLength: 6,
+			SmsOtpLength:      6,
+		})
+
+	// Read operations
+	gock.New("https://api.supabase.com").
+		Get("/v1/projects/mayuaycdtijbctgqbycg/config/auth").
+		Times(2).
+		Reply(http.StatusOK).
+		JSON(api.AuthConfigResponse{
+			JwtExp:            Ptr(7200),
+			MailerOtpExp:      3600,
+			MfaPhoneOtpLength: 6,
+			SmsOtpLength:      6,
+		})
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccSettingsResourceConfigJwtExp,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("supabase_settings.test", "project_ref", "mayuaycdtijbctgqbycg"),
+					resource.TestCheckResourceAttr("supabase_settings.test", "auth.jwt_exp", "7200"),
+					resource.TestCheckResourceAttr("supabase_settings.test", "auth.mailer_otp_exp", "3600"),
+					resource.TestCheckResourceAttr("supabase_settings.test", "auth.mfa_phone_otp_length", "6"),
+					resource.TestCheckResourceAttr("supabase_settings.test", "auth.sms_otp_length", "6"),
+				),
+			},
+		},
+	})
+}
+
+const testAccSettingsResourceConfigJwtExp = `
+resource "supabase_settings" "test" {
+  project_ref = "mayuaycdtijbctgqbycg"
+
+  auth = {
+    mailer_otp_exp = 3600
+    mfa_phone_otp_length = 6
+    sms_otp_length = 6
+    jwt_exp = 7200
+  }
+}
+`
+
 // Note: Ptr function is available from utils.go

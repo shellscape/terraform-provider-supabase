@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/shellscape/terraform-provider-supabase/internal/provider/settings"
 	"github.com/supabase/cli/pkg/api"
 )
 
@@ -142,11 +143,11 @@ func (r *EdgeFunctionResource) Configure(ctx context.Context, req resource.Confi
 		return
 	}
 
-	providerData, ok := req.ProviderData.(*SupabaseProviderData)
+	providerData, ok := req.ProviderData.(*settings.SupabaseProviderData)
 	if !ok {
 		resp.Diagnostics.AddError(
 			"Unexpected Resource Configure Type",
-			fmt.Sprintf("Expected *SupabaseProviderData, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+			fmt.Sprintf("Expected *settings.SupabaseProviderData, got: %T. Please report this issue to the provider developers.", req.ProviderData),
 		)
 		return
 	}
