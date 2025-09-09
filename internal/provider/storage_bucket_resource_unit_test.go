@@ -5,17 +5,18 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/supabase/cli/pkg/storage"
 )
 
 func TestStorageBucketResourceUpdateDataFromBucket(t *testing.T) {
 	resource := &StorageBucketResource{}
 	
 	// Test with full bucket data
-	bucket := &StorageBucket{
+	bucket := &storage.BucketResponse{
 		Id:               "test-bucket",
 		Name:             "test-bucket", 
 		Public:           true,
-		FileSizeLimit:    func() *int64 { i := int64(52428800); return &i }(),
+		FileSizeLimit:    func() *int { i := int(52428800); return &i }(),
 		AllowedMimeTypes: []string{"image/*", "video/mp4"},
 		CreatedAt:        "2023-01-01T00:00:00Z",
 		UpdatedAt:        "2023-01-01T00:00:00Z",
@@ -65,7 +66,7 @@ func TestStorageBucketResourceUpdateDataFromBucketNullFields(t *testing.T) {
 	resource := &StorageBucketResource{}
 	
 	// Test with bucket data containing null optional fields
-	bucket := &StorageBucket{
+	bucket := &storage.BucketResponse{
 		Id:               "null-bucket",
 		Name:             "null-bucket", 
 		Public:           false,
@@ -98,7 +99,7 @@ func TestStorageBucketResourceUpdateDataFromBucketEmptyList(t *testing.T) {
 	resource := &StorageBucketResource{}
 	
 	// Test with bucket data containing null API response but config had empty list
-	bucket := &StorageBucket{
+	bucket := &storage.BucketResponse{
 		Id:               "empty-list-bucket",
 		Name:             "empty-list-bucket", 
 		Public:           false,

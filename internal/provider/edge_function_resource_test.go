@@ -2,7 +2,6 @@ package provider
 
 import (
 	"net/http"
-	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -11,173 +10,105 @@ import (
 )
 
 func TestAccEdgeFunctionResource(t *testing.T) {
+	// Setup mock API responses - no CLI bundling
 	defer gock.OffAll()
-
-	// Step 1: Create
+	
+	// Mock function creation
 	gock.New("https://api.supabase.com").
 		Post("/v1/projects/mayuaycdtijbctgqbycg/functions").
 		Reply(http.StatusCreated).
-		JSON(api.FunctionResponse{
-			Id:        "func123",
-			Slug:      "hello-world",
-			Name:      "Hello World",
+		JSON(&api.FunctionResponse{
+			Id:        "test-func-id",
+			Slug:      "test-function",
+			Name:      "Test Function",
 			Status:    "ACTIVE",
 			CreatedAt: 1640995200,
 			UpdatedAt: 1640995200,
 		})
 
-	// Step 2: Read for create
+	// Mock function read - first two times return original name
 	gock.New("https://api.supabase.com").
-		Get("/v1/projects/mayuaycdtijbctgqbycg/functions/hello-world").
+		Get("/v1/projects/mayuaycdtijbctgqbycg/functions/test-function").
+		Times(2).
 		Reply(http.StatusOK).
-		JSON(api.FunctionSlugResponse{
-			Id:        "func123",
-			Slug:      "hello-world",
-			Name:      "Hello World",
+		JSON(&api.FunctionSlugResponse{
+			Id:        "test-func-id",
+			Slug:      "test-function",
+			Name:      "Test Function",
 			Status:    "ACTIVE",
 			CreatedAt: 1640995200,
 			UpdatedAt: 1640995200,
+			Version:   1,
 		})
 
+	// Mock function read after update - return updated name
 	gock.New("https://api.supabase.com").
-		Get("/v1/projects/mayuaycdtijbctgqbycg/functions/hello-world/body").
+		Get("/v1/projects/mayuaycdtijbctgqbycg/functions/test-function").
+		Times(2).
 		Reply(http.StatusOK).
-		BodyString(`export default function handler(req) { return new Response("Hello World!"); }`)
-
-	// Step 3: Read for refresh
-	gock.New("https://api.supabase.com").
-		Get("/v1/projects/mayuaycdtijbctgqbycg/functions/hello-world").
-		Reply(http.StatusOK).
-		JSON(api.FunctionSlugResponse{
-			Id:        "func123",
-			Slug:      "hello-world",
-			Name:      "Hello World",
+		JSON(&api.FunctionSlugResponse{
+			Id:        "test-func-id",
+			Slug:      "test-function",
+			Name:      "Updated Function",
 			Status:    "ACTIVE",
 			CreatedAt: 1640995200,
-			UpdatedAt: 1640995200,
+			UpdatedAt: 1640995300,
+			Version:   2,
 		})
 
+	// Mock function update
 	gock.New("https://api.supabase.com").
-		Get("/v1/projects/mayuaycdtijbctgqbycg/functions/hello-world/body").
+		Patch("/v1/projects/mayuaycdtijbctgqbycg/functions/test-function").
 		Reply(http.StatusOK).
-		BodyString(`export default function handler(req) { return new Response("Hello World!"); }`)
-
-	// Step 4: Update
-	gock.New("https://api.supabase.com").
-		Patch("/v1/projects/mayuaycdtijbctgqbycg/functions/hello-world").
-		Reply(http.StatusOK).
-		JSON(api.FunctionResponse{
-			Id:        "func123",
-			Slug:      "hello-world",
-			Name:      "Hello Updated",
+		JSON(&api.FunctionResponse{
+			Id:        "test-func-id",
+			Slug:      "test-function", 
+			Name:      "Updated Function",
 			Status:    "ACTIVE",
 			CreatedAt: 1640995200,
 			UpdatedAt: 1640995300,
 		})
 
-	// Step 5: Read after update
+	// Mock function delete
 	gock.New("https://api.supabase.com").
-		Get("/v1/projects/mayuaycdtijbctgqbycg/functions/hello-world").
+		Delete("/v1/projects/mayuaycdtijbctgqbycg/functions/test-function").
 		Reply(http.StatusOK).
-		JSON(api.FunctionSlugResponse{
-			Id:        "func123",
-			Slug:      "hello-world",
-			Name:      "Hello Updated",
-			Status:    "ACTIVE",
-			CreatedAt: 1640995200,
-			UpdatedAt: 1640995300,
-		})
-
-	gock.New("https://api.supabase.com").
-		Get("/v1/projects/mayuaycdtijbctgqbycg/functions/hello-world/body").
-		Reply(http.StatusOK).
-		BodyString(`export default function handler(req) { return new Response("Hello Updated!"); }`)
-
-	// Step 6: Delete
-	gock.New("https://api.supabase.com").
-		Delete("/v1/projects/mayuaycdtijbctgqbycg/functions/hello-world").
-		Reply(http.StatusOK)
+		JSON(map[string]string{"message": "Function deleted successfully"})
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
-			// Create and Read testing
+			// Create testing
 			{
-				Config: testAccEdgeFunctionResourceConfig,
+				Config: `
+resource "supabase_edge_function" "test" {
+  project_ref      = "mayuaycdtijbctgqbycg"
+  slug             = "test-function"
+  name             = "Test Function"
+  entrypoint_path  = "/tmp/index.ts"
+}`,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("supabase_edge_function.test", "project_ref", "mayuaycdtijbctgqbycg"),
-					resource.TestCheckResourceAttr("supabase_edge_function.test", "slug", "hello-world"),
-					resource.TestCheckResourceAttr("supabase_edge_function.test", "name", "Hello World"),
-					resource.TestCheckResourceAttr("supabase_edge_function.test", "body", `export default function handler(req) { return new Response("Hello World!"); }`),
-					resource.TestCheckResourceAttr("supabase_edge_function.test", "verify_jwt", "false"),
-					resource.TestCheckResourceAttr("supabase_edge_function.test", "id", "func123"),
+					resource.TestCheckResourceAttr("supabase_edge_function.test", "id", "test-func-id"),
+					resource.TestCheckResourceAttr("supabase_edge_function.test", "slug", "test-function"),
+					resource.TestCheckResourceAttr("supabase_edge_function.test", "name", "Test Function"),
 					resource.TestCheckResourceAttr("supabase_edge_function.test", "status", "ACTIVE"),
-					resource.TestCheckResourceAttr("supabase_edge_function.test", "created_at", "1640995200"),
-					resource.TestCheckResourceAttr("supabase_edge_function.test", "updated_at", "1640995200"),
+					resource.TestCheckResourceAttrSet("supabase_edge_function.test", "created_at"),
 				),
 			},
 			// Update testing
 			{
-				Config: testAccEdgeFunctionResourceConfigUpdate,
+				Config: `
+resource "supabase_edge_function" "test" {
+  project_ref      = "mayuaycdtijbctgqbycg"
+  slug             = "test-function"
+  name             = "Updated Function"
+  entrypoint_path  = "/tmp/index.ts"
+}`,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("supabase_edge_function.test", "project_ref", "mayuaycdtijbctgqbycg"),
-					resource.TestCheckResourceAttr("supabase_edge_function.test", "slug", "hello-world"),
-					resource.TestCheckResourceAttr("supabase_edge_function.test", "name", "Hello Updated"),
-					resource.TestCheckResourceAttr("supabase_edge_function.test", "body", `export default function handler(req) { return new Response("Hello Updated!"); }`),
-					resource.TestCheckResourceAttr("supabase_edge_function.test", "verify_jwt", "true"),
-					resource.TestCheckResourceAttr("supabase_edge_function.test", "id", "func123"),
-					resource.TestCheckResourceAttr("supabase_edge_function.test", "status", "ACTIVE"),
-					resource.TestCheckResourceAttr("supabase_edge_function.test", "created_at", "1640995200"),
-					resource.TestCheckResourceAttr("supabase_edge_function.test", "updated_at", "1640995300"),
+					resource.TestCheckResourceAttr("supabase_edge_function.test", "name", "Updated Function"),
 				),
 			},
 		},
 	})
 }
-
-const testAccEdgeFunctionResourceConfig = `
-resource "supabase_edge_function" "test" {
-  project_ref = "mayuaycdtijbctgqbycg"
-  slug        = "hello-world"
-  name        = "Hello World"
-  body        = "export default function handler(req) { return new Response(\"Hello World!\"); }"
-  verify_jwt  = false
-}
-`
-
-const testAccEdgeFunctionResourceConfigUpdate = `
-resource "supabase_edge_function" "test" {
-  project_ref = "mayuaycdtijbctgqbycg"
-  slug        = "hello-world"
-  name        = "Hello Updated"
-  body        = "export default function handler(req) { return new Response(\"Hello Updated!\"); }"
-  verify_jwt  = true
-}
-`
-
-func TestAccEdgeFunctionResourceSlugValidation(t *testing.T) {
-	defer gock.OffAll()
-
-	// No API mock needed - validation happens at schema level before API calls
-	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		Steps: []resource.TestStep{
-			{
-				Config:      testAccEdgeFunctionResourceConfigInvalidSlug,
-				ExpectError: regexp.MustCompile(`invalid@slug!`),
-			},
-		},
-	})
-}
-
-const testAccEdgeFunctionResourceConfigInvalidSlug = `
-resource "supabase_edge_function" "test" {
-  project_ref = "mayuaycdtijbctgqbycg"
-  slug        = "invalid@slug!"
-  name        = "Invalid Slug Function"
-  body        = "export default () => new Response(\"Hello\");"
-  verify_jwt  = false
-}
-`

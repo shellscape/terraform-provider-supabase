@@ -1,12 +1,8 @@
 package provider
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
 	"regexp"
 	"strings"
 
@@ -18,6 +14,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/shellscape/terraform-provider-supabase/internal/provider/settings"
+	"github.com/supabase/cli/pkg/fetcher"
+	"github.com/supabase/cli/pkg/storage"
 )
 
 var (
@@ -31,6 +29,7 @@ func NewStorageBucketResource() resource.Resource {
 
 type StorageBucketResource struct {
 	providerData *settings.SupabaseProviderData
+	storageClient *storage.StorageAPI
 }
 
 type StorageBucketResourceModel struct {
@@ -45,32 +44,8 @@ type StorageBucketResourceModel struct {
 	Owner            types.String `tfsdk:"owner"`
 }
 
-type StorageBucket struct {
-	Id               string   `json:"id"`
-	Name             string   `json:"name"`
-	Public           bool     `json:"public"`
-	FileSizeLimit    *int64   `json:"file_size_limit"`
-	AllowedMimeTypes []string `json:"allowed_mime_types"`
-	CreatedAt        string   `json:"created_at"`
-	UpdatedAt        string   `json:"updated_at"`
-	Owner            string   `json:"owner"`
-}
 
-type CreateBucketRequest struct {
-	Id               string   `json:"id"`
-	Name             string   `json:"name"`
-	Public           bool     `json:"public"`
-	FileSizeLimit    *int64   `json:"file_size_limit,omitempty"`
-	AllowedMimeTypes []string `json:"allowed_mime_types,omitempty"`
-}
 
-type UpdateBucketRequest struct {
-	Id               string   `json:"id"`
-	Name             string   `json:"name"`
-	Public           bool     `json:"public"`
-	FileSizeLimit    *int64   `json:"file_size_limit,omitempty"`
-	AllowedMimeTypes []string `json:"allowed_mime_types,omitempty"`
-}
 
 func (r *StorageBucketResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_storage_bucket"
@@ -176,16 +151,22 @@ func (r *StorageBucketResource) Create(ctx context.Context, req resource.CreateR
 		return
 	}
 
+	// Get storage client
+	storageClient, err := r.getStorageClient(ctx, data.ProjectRef.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError("Storage Client Error", fmt.Sprintf("Unable to create storage client: %s", err))
+		return
+	}
+
 	// Prepare the create request
-	createReq := CreateBucketRequest{
+	createReq := storage.CreateBucketRequest{
 		Id:     data.Name.ValueString(),
 		Name:   data.Name.ValueString(),
-		Public: data.Public.ValueBool(),
+		Public: &[]bool{data.Public.ValueBool()}[0],
 	}
 
 	if !data.FileSizeLimit.IsNull() {
-		limit := data.FileSizeLimit.ValueInt64()
-		createReq.FileSizeLimit = &limit
+		createReq.FileSizeLimit = data.FileSizeLimit.ValueInt64()
 	}
 
 	if !data.AllowedMimeTypes.IsNull() {
@@ -197,10 +178,17 @@ func (r *StorageBucketResource) Create(ctx context.Context, req resource.CreateR
 		createReq.AllowedMimeTypes = mimeTypes
 	}
 
-	// Create the bucket via Storage API
-	bucket, err := r.createBucketViaStorageAPI(ctx, data.ProjectRef.ValueString(), createReq)
+	// Create the bucket via CLI
+	_, err = storageClient.CreateBucket(ctx, createReq)
 	if err != nil {
 		resp.Diagnostics.AddError("Storage API Error", fmt.Sprintf("Unable to create storage bucket: %s", err))
+		return
+	}
+
+	// Read back the created bucket to get all computed fields
+	bucket, err := r.getBucket(ctx, storageClient, data.Name.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError("Storage API Error", fmt.Sprintf("Unable to read created storage bucket: %s", err))
 		return
 	}
 
@@ -218,8 +206,15 @@ func (r *StorageBucketResource) Read(ctx context.Context, req resource.ReadReque
 		return
 	}
 
-	// Get the bucket details via Storage API
-	bucket, err := r.getBucketViaStorageAPI(ctx, data.ProjectRef.ValueString(), data.Name.ValueString())
+	// Get storage client
+	storageClient, err := r.getStorageClient(ctx, data.ProjectRef.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError("Storage Client Error", fmt.Sprintf("Unable to create storage client: %s", err))
+		return
+	}
+
+	// Get the bucket details
+	bucket, err := r.getBucket(ctx, storageClient, data.Name.ValueString())
 	if err != nil {
 		if strings.Contains(err.Error(), "404") {
 			// Bucket no longer exists
@@ -244,16 +239,21 @@ func (r *StorageBucketResource) Update(ctx context.Context, req resource.UpdateR
 		return
 	}
 
+	// Get storage client
+	storageClient, err := r.getStorageClient(ctx, data.ProjectRef.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError("Storage Client Error", fmt.Sprintf("Unable to create storage client: %s", err))
+		return
+	}
+
 	// Prepare the update request
-	updateReq := UpdateBucketRequest{
+	updateReq := storage.UpdateBucketRequest{
 		Id:     data.Name.ValueString(),
-		Name:   data.Name.ValueString(),
-		Public: data.Public.ValueBool(),
+		Public: &[]bool{data.Public.ValueBool()}[0],
 	}
 
 	if !data.FileSizeLimit.IsNull() {
-		limit := data.FileSizeLimit.ValueInt64()
-		updateReq.FileSizeLimit = &limit
+		updateReq.FileSizeLimit = data.FileSizeLimit.ValueInt64()
 	}
 
 	if !data.AllowedMimeTypes.IsNull() {
@@ -265,10 +265,17 @@ func (r *StorageBucketResource) Update(ctx context.Context, req resource.UpdateR
 		updateReq.AllowedMimeTypes = mimeTypes
 	}
 
-	// Update the bucket via Storage API
-	bucket, err := r.updateBucketViaStorageAPI(ctx, data.ProjectRef.ValueString(), data.Name.ValueString(), updateReq)
+	// Update the bucket via CLI
+	_, err = storageClient.UpdateBucket(ctx, updateReq)
 	if err != nil {
 		resp.Diagnostics.AddError("Storage API Error", fmt.Sprintf("Unable to update storage bucket: %s", err))
+		return
+	}
+
+	// Read back the updated bucket to get all computed fields
+	bucket, err := r.getBucket(ctx, storageClient, data.Name.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError("Storage API Error", fmt.Sprintf("Unable to read updated storage bucket: %s", err))
 		return
 	}
 
@@ -286,114 +293,58 @@ func (r *StorageBucketResource) Delete(ctx context.Context, req resource.DeleteR
 		return
 	}
 
-	// Delete the bucket via Storage API
-	err := r.deleteBucketViaStorageAPI(ctx, data.ProjectRef.ValueString(), data.Name.ValueString())
+	// Get storage client
+	storageClient, err := r.getStorageClient(ctx, data.ProjectRef.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError("Storage Client Error", fmt.Sprintf("Unable to create storage client: %s", err))
+		return
+	}
+
+	// Delete the bucket via CLI
+	_, err = storageClient.DeleteBucket(ctx, data.Name.ValueString())
 	if err != nil && !strings.Contains(err.Error(), "404") {
 		resp.Diagnostics.AddError("Storage API Error", fmt.Sprintf("Unable to delete storage bucket: %s", err))
 		return
 	}
 }
 
-// Helper methods for direct Storage API communication
-func (r *StorageBucketResource) createBucketViaStorageAPI(ctx context.Context, projectRef string, bucket CreateBucketRequest) (*StorageBucket, error) {
-	return r.makeStorageAPIRequest(ctx, "POST", projectRef, "/bucket", bucket)
-}
-
-func (r *StorageBucketResource) getBucketViaStorageAPI(ctx context.Context, projectRef string, bucketId string) (*StorageBucket, error) {
-	return r.makeStorageAPIRequest(ctx, "GET", projectRef, fmt.Sprintf("/bucket/%s", bucketId), nil)
-}
-
-func (r *StorageBucketResource) updateBucketViaStorageAPI(ctx context.Context, projectRef string, bucketId string, bucket UpdateBucketRequest) (*StorageBucket, error) {
-	return r.makeStorageAPIRequest(ctx, "PUT", projectRef, fmt.Sprintf("/bucket/%s", bucketId), bucket)
-}
-
-func (r *StorageBucketResource) deleteBucketViaStorageAPI(ctx context.Context, projectRef string, bucketId string) error {
-	_, err := r.makeStorageAPIRequest(ctx, "DELETE", projectRef, fmt.Sprintf("/bucket/%s", bucketId), nil)
-	return err
-}
-
-func (r *StorageBucketResource) makeStorageAPIRequest(ctx context.Context, method, projectRef, path string, body interface{}) (*StorageBucket, error) {
-	// Storage API URL
-	url := fmt.Sprintf("https://%s.supabase.co/storage/v1%s", projectRef, path)
-
-	var reqBody io.Reader
-	if body != nil {
-		jsonBody, err := json.Marshal(body)
-		if err != nil {
-			return nil, fmt.Errorf("failed to marshal request body: %w", err)
-		}
-		reqBody = bytes.NewBuffer(jsonBody)
-	}
-
-	req, err := http.NewRequestWithContext(ctx, method, url, reqBody)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create request: %w", err)
-	}
-
-	// Get the appropriate authorization header for storage operations
-	authHeader, err := r.getAuthorizationHeader(ctx, projectRef)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get authorization header: %w", err)
-	}
-	
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", authHeader)
-
-	httpClient := &http.Client{}
-	httpResp, err := httpClient.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("request failed: %w", err)
-	}
-	defer httpResp.Body.Close()
-
-	respBody, err := io.ReadAll(httpResp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read response body: %w", err)
-	}
-
-	if httpResp.StatusCode < 200 || httpResp.StatusCode >= 300 {
-		// If authentication failed, invalidate cached tokens and potentially retry
-		if httpResp.StatusCode == 401 || httpResp.StatusCode == 403 {
-			r.providerData.TokenManager.InvalidateProjectTokens(projectRef)
-		}
-		return nil, fmt.Errorf("API error (status %d): %s", httpResp.StatusCode, string(respBody))
-	}
-
-	// For GET requests, parse the bucket response
-	if method == "GET" {
-		var bucket StorageBucket
-		if err := json.Unmarshal(respBody, &bucket); err != nil {
-			return nil, fmt.Errorf("failed to parse response: %w", err)
-		}
-		return &bucket, nil
-	}
-
-	// For POST (create), the response contains the created bucket
-	if method == "POST" {
-		// Create might return just {name: "bucket-name"} or the full bucket object
-		// Let's fetch the full bucket details after creation
-		return r.getBucketViaStorageAPI(ctx, projectRef, body.(CreateBucketRequest).Id)
-	}
-
-	// For PUT (update), fetch the updated bucket
-	if method == "PUT" {
-		return r.getBucketViaStorageAPI(ctx, projectRef, body.(UpdateBucketRequest).Id)
-	}
-
-	// For DELETE, return nil (no content expected)
-	return nil, nil
-}
-
-func (r *StorageBucketResource) getAuthorizationHeader(ctx context.Context, projectRef string) (string, error) {
-	// Use token manager to get the appropriate token for storage operations
+// Helper methods for CLI-based storage operations
+func (r *StorageBucketResource) getStorageClient(ctx context.Context, projectRef string) (*storage.StorageAPI, error) {
+	// Get service role token using same pattern as existing implementation
 	serviceRoleToken, err := r.providerData.TokenManager.GetServiceRoleToken(ctx, projectRef)
 	if err != nil {
-		return "", fmt.Errorf("failed to get service role token: %w", err)
+		return nil, fmt.Errorf("failed to get service role token: %w", err)
 	}
-	return "Bearer " + serviceRoleToken, nil
+
+	// Create storage client similar to how CLI does it
+	storageURL := fmt.Sprintf("https://%s.supabase.co", projectRef)
+	client := &storage.StorageAPI{
+		Fetcher: fetcher.NewFetcher(
+			storageURL,
+			fetcher.WithBearerToken(serviceRoleToken),
+			fetcher.WithUserAgent("terraform-provider-supabase"),
+		),
+	}
+
+	return client, nil
 }
 
-func (r *StorageBucketResource) updateDataFromBucket(data *StorageBucketResourceModel, bucket *StorageBucket) {
+func (r *StorageBucketResource) getBucket(ctx context.Context, storageClient *storage.StorageAPI, bucketId string) (*storage.BucketResponse, error) {
+	buckets, err := storageClient.ListBuckets(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list buckets: %w", err)
+	}
+
+	for _, bucket := range buckets {
+		if bucket.Id == bucketId || bucket.Name == bucketId {
+			return &bucket, nil
+		}
+	}
+
+	return nil, fmt.Errorf("bucket not found: 404")
+}
+
+func (r *StorageBucketResource) updateDataFromBucket(data *StorageBucketResourceModel, bucket *storage.BucketResponse) {
 	data.Id = types.StringValue(bucket.Id)
 	data.Name = types.StringValue(bucket.Name)
 	data.Public = types.BoolValue(bucket.Public)
@@ -402,7 +353,7 @@ func (r *StorageBucketResource) updateDataFromBucket(data *StorageBucketResource
 	data.Owner = types.StringValue(bucket.Owner)
 
 	if bucket.FileSizeLimit != nil {
-		data.FileSizeLimit = types.Int64Value(*bucket.FileSizeLimit)
+		data.FileSizeLimit = types.Int64Value(int64(*bucket.FileSizeLimit))
 	} else {
 		data.FileSizeLimit = types.Int64Null()
 	}

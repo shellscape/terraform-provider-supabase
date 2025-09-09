@@ -36,20 +36,22 @@ func TestAccStorageBucketResource(t *testing.T) {
 		Reply(201).
 		JSON(map[string]string{"name": "test-bucket"})
 
-	// Mock read operations for create step - returning initial values
+	// Mock ListBuckets read operations for create step - returning initial values
 	gock.New("https://mayuaycdtijbctgqbycg.supabase.co").
-		Get("/storage/v1/bucket/test-bucket").
+		Get("/storage/v1/bucket").
 		Times(3).
 		Reply(200).
-		JSON(map[string]interface{}{
-			"id":                 "test-bucket",
-			"name":               "test-bucket",
-			"public":             false,
-			"file_size_limit":    52428800,
-			"allowed_mime_types": []string{"image/*", "video/mp4"},
-			"created_at":         "2023-01-01T00:00:00Z",
-			"updated_at":         "2023-01-01T00:00:00Z",
-			"owner":              "owner123",
+		JSON([]map[string]interface{}{
+			{
+				"id":                 "test-bucket",
+				"name":               "test-bucket",
+				"public":             false,
+				"file_size_limit":    52428800,
+				"allowed_mime_types": []string{"image/*", "video/mp4"},
+				"created_at":         "2023-01-01T00:00:00Z",
+				"updated_at":         "2023-01-01T00:00:00Z",
+				"owner":              "owner123",
+			},
 		})
 
 	// ==> STEP 2: UPDATE <==
@@ -59,27 +61,29 @@ func TestAccStorageBucketResource(t *testing.T) {
 		Reply(200).
 		JSON(map[string]string{"message": "Updated"})
 
-	// Mock read operations after update - returning updated values
+	// Mock ListBuckets read operations after update - returning updated values
 	gock.New("https://mayuaycdtijbctgqbycg.supabase.co").
-		Get("/storage/v1/bucket/test-bucket").
+		Get("/storage/v1/bucket").
 		Times(10).
 		Reply(200).
-		JSON(map[string]interface{}{
-			"id":                 "test-bucket",
-			"name":               "test-bucket",
-			"public":             true,
-			"file_size_limit":    104857600,
-			"allowed_mime_types": []string{"image/*", "video/*"},
-			"created_at":         "2023-01-01T00:00:00Z",
-			"updated_at":         "2023-01-01T01:00:00Z",
-			"owner":              "owner123",
+		JSON([]map[string]interface{}{
+			{
+				"id":                 "test-bucket",
+				"name":               "test-bucket",
+				"public":             true,
+				"file_size_limit":    104857600,
+				"allowed_mime_types": []string{"image/*", "video/*"},
+				"created_at":         "2023-01-01T00:00:00Z",
+				"updated_at":         "2023-01-01T01:00:00Z",
+				"owner":              "owner123",
+			},
 		})
 
 	// Mock delete for cleanup
 	gock.New("https://mayuaycdtijbctgqbycg.supabase.co").
 		Delete("/storage/v1/bucket/test-bucket").
 		Reply(200).
-		JSON(map[string]string{"message": "Deleted"})
+		JSON(map[string]string{"message": "Successfully deleted"})
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },

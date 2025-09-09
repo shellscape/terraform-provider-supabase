@@ -41,26 +41,29 @@ func TestAccStorageBucketResourceOptionalFields(t *testing.T) {
 		Reply(201).
 		JSON(map[string]string{"name": "optional-bucket"})
 
-	// Mock GET for reading the created bucket (null optional fields) - multiple times for refresh cycles
+	// Mock ListBuckets for reading the created bucket - multiple times for refresh cycles
 	gock.New("https://mayuaycdtijbctgqbycg.supabase.co").
-		Get("/storage/v1/bucket/optional-bucket").
+		Get("/storage/v1/bucket").
 		Times(3).  // Allow multiple refresh calls
 		Reply(200).
-		JSON(map[string]interface{}{
-			"id":                 "optional-bucket",
-			"name":               "optional-bucket",
-			"public":             true,
-			"file_size_limit":    nil,
-			"allowed_mime_types": nil,
-			"created_at":         "2023-01-01T00:00:00Z",
-			"updated_at":         "2023-01-01T00:00:00Z",
-			"owner":              "owner123",
+		JSON([]map[string]interface{}{
+			{
+				"id":                 "optional-bucket",
+				"name":               "optional-bucket",
+				"public":             true,
+				"file_size_limit":    nil,
+				"allowed_mime_types": nil,
+				"created_at":         "2023-01-01T00:00:00Z",
+				"updated_at":         "2023-01-01T00:00:00Z",
+				"owner":              "owner123",
+			},
 		})
 
 	// Mock successful delete for cleanup
 	gock.New("https://mayuaycdtijbctgqbycg.supabase.co").
 		Delete("/storage/v1/bucket/optional-bucket").
-		Reply(200)
+		Reply(200).
+		JSON(map[string]string{"message": "Successfully deleted"})
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -120,20 +123,22 @@ func TestAccStorageBucketResourceUpdateFailure(t *testing.T) {
 		Reply(201).
 		JSON(map[string]string{"name": "update-fail-bucket"})
 
-	// Mock successful reads - multiple times for refresh cycles
+	// Mock successful ListBuckets reads - multiple times for refresh cycles
 	gock.New("https://mayuaycdtijbctgqbycg.supabase.co").
-		Get("/storage/v1/bucket/update-fail-bucket").
+		Get("/storage/v1/bucket").
 		Times(5).
 		Reply(200).
-		JSON(map[string]interface{}{
-			"id":                 "update-fail-bucket",
-			"name":               "update-fail-bucket",
-			"public":             false,
-			"file_size_limit":    1048576,
-			"allowed_mime_types": []string{"image/*"},
-			"created_at":         "2023-01-01T00:00:00Z",
-			"updated_at":         "2023-01-01T00:00:00Z",
-			"owner":              "owner123",
+		JSON([]map[string]interface{}{
+			{
+				"id":                 "update-fail-bucket",
+				"name":               "update-fail-bucket",
+				"public":             false,
+				"file_size_limit":    1048576,
+				"allowed_mime_types": []string{"image/*"},
+				"created_at":         "2023-01-01T00:00:00Z",
+				"updated_at":         "2023-01-01T00:00:00Z",
+				"owner":              "owner123",
+			},
 		})
 
 	// Mock update failure
@@ -145,7 +150,8 @@ func TestAccStorageBucketResourceUpdateFailure(t *testing.T) {
 	// Mock successful delete for cleanup
 	gock.New("https://mayuaycdtijbctgqbycg.supabase.co").
 		Delete("/storage/v1/bucket/update-fail-bucket").
-		Reply(200)
+		Reply(200).
+		JSON(map[string]string{"message": "Successfully deleted"})
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -177,27 +183,29 @@ func TestAccStorageBucketResourceNotFound(t *testing.T) {
 		Reply(201).
 		JSON(map[string]string{"name": "vanishing-bucket"})
 
-	// Mock successful initial read - multiple times for refresh cycles during step 1
+	// Mock successful initial ListBuckets read - multiple times for refresh cycles during step 1
 	gock.New("https://mayuaycdtijbctgqbycg.supabase.co").
-		Get("/storage/v1/bucket/vanishing-bucket").
+		Get("/storage/v1/bucket").
 		Times(5).
 		Reply(200).
-		JSON(map[string]interface{}{
-			"id":                 "vanishing-bucket",
-			"name":               "vanishing-bucket",
-			"public":             false,
-			"file_size_limit":    nil,
-			"allowed_mime_types": nil,
-			"created_at":         "2023-01-01T00:00:00Z",
-			"updated_at":         "2023-01-01T00:00:00Z",
-			"owner":              "owner123",
+		JSON([]map[string]interface{}{
+			{
+				"id":                 "vanishing-bucket",
+				"name":               "vanishing-bucket",
+				"public":             false,
+				"file_size_limit":    nil,
+				"allowed_mime_types": nil,
+				"created_at":         "2023-01-01T00:00:00Z",
+				"updated_at":         "2023-01-01T00:00:00Z",
+				"owner":              "owner123",
+			},
 		})
 
-	// Mock 404 on refresh (bucket deleted outside Terraform)
+	// Mock empty ListBuckets on refresh (bucket deleted outside Terraform)
 	gock.New("https://mayuaycdtijbctgqbycg.supabase.co").
-		Get("/storage/v1/bucket/vanishing-bucket").
-		Reply(404).
-		JSON(map[string]string{"message": "Bucket not found"})
+		Get("/storage/v1/bucket").
+		Reply(200).
+		JSON([]map[string]interface{}{})
 
 	// Mock delete for cleanup - should also return 404 since bucket is already gone
 	gock.New("https://mayuaycdtijbctgqbycg.supabase.co").
@@ -241,34 +249,37 @@ func TestAccStorageBucketResourceComplexMimeTypes(t *testing.T) {
 		Reply(201).
 		JSON(map[string]string{"name": "mime-bucket"})
 
-	// Mock read with complex MIME types - multiple times for refresh cycles
+	// Mock ListBuckets read with complex MIME types - multiple times for refresh cycles
 	gock.New("https://mayuaycdtijbctgqbycg.supabase.co").
-		Get("/storage/v1/bucket/mime-bucket").
+		Get("/storage/v1/bucket").
 		Times(5).
 		Reply(200).
-		JSON(map[string]interface{}{
-			"id":     "mime-bucket",
-			"name":   "mime-bucket",
-			"public": true,
-			"allowed_mime_types": []string{
-				"image/*",
-				"video/mp4",
-				"video/quicktime",
-				"application/pdf",
-				"application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-				"text/plain",
-				"text/csv",
+		JSON([]map[string]interface{}{
+			{
+				"id":     "mime-bucket",
+				"name":   "mime-bucket",
+				"public": true,
+				"allowed_mime_types": []string{
+					"image/*",
+					"video/mp4",
+					"video/quicktime",
+					"application/pdf",
+					"application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+					"text/plain",
+					"text/csv",
+				},
+				"file_size_limit": 104857600,
+				"created_at":      "2023-01-01T00:00:00Z",
+				"updated_at":      "2023-01-01T00:00:00Z",
+				"owner":           "owner123",
 			},
-			"file_size_limit": 104857600,
-			"created_at":      "2023-01-01T00:00:00Z",
-			"updated_at":      "2023-01-01T00:00:00Z",
-			"owner":           "owner123",
 		})
 
 	// Mock successful delete for cleanup
 	gock.New("https://mayuaycdtijbctgqbycg.supabase.co").
 		Delete("/storage/v1/bucket/mime-bucket").
-		Reply(200)
+		Reply(200).
+		JSON(map[string]string{"message": "Successfully deleted"})
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -302,20 +313,22 @@ func TestAccStorageBucketResourceDeleteFailure(t *testing.T) {
 		Reply(201).
 		JSON(map[string]string{"name": "delete-test-bucket"})
 
-	// Mock successful read - multiple times for refresh cycles
+	// Mock successful ListBuckets read - multiple times for refresh cycles
 	gock.New("https://mayuaycdtijbctgqbycg.supabase.co").
-		Get("/storage/v1/bucket/delete-test-bucket").
+		Get("/storage/v1/bucket").
 		Times(5).
 		Reply(200).
-		JSON(map[string]interface{}{
-			"id":                 "delete-test-bucket",
-			"name":               "delete-test-bucket",
-			"public":             false,
-			"file_size_limit":    nil,
-			"allowed_mime_types": nil,
-			"created_at":         "2023-01-01T00:00:00Z",
-			"updated_at":         "2023-01-01T00:00:00Z",
-			"owner":              "owner123",
+		JSON([]map[string]interface{}{
+			{
+				"id":                 "delete-test-bucket",
+				"name":               "delete-test-bucket",
+				"public":             false,
+				"file_size_limit":    nil,
+				"allowed_mime_types": nil,
+				"created_at":         "2023-01-01T00:00:00Z",
+				"updated_at":         "2023-01-01T00:00:00Z",
+				"owner":              "owner123",
+			},
 		})
 
 	// First delete attempt fails (bucket not empty)
@@ -328,7 +341,8 @@ func TestAccStorageBucketResourceDeleteFailure(t *testing.T) {
 	gock.New("https://mayuaycdtijbctgqbycg.supabase.co").
 		Delete("/storage/v1/bucket/delete-test-bucket").
 		Times(3).
-		Reply(200)
+		Reply(200).
+		JSON(map[string]string{"message": "Successfully deleted"})
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
