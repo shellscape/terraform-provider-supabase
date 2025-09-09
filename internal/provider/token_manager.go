@@ -68,7 +68,9 @@ func (tm *TokenManager) GetManagementToken() string {
 
 // fetchProjectTokens fetches API keys from the management API
 func (tm *TokenManager) fetchProjectTokens(ctx context.Context, projectRef string) (*ProjectTokens, error) {
-	resp, err := tm.managementClient.V1GetProjectApiKeysWithResponse(ctx, projectRef, &api.V1GetProjectApiKeysParams{})
+	resp, err := tm.managementClient.V1GetProjectApiKeysWithResponse(ctx, projectRef, &api.V1GetProjectApiKeysParams{
+		Reveal: true, // Required to get actual API key values instead of masked ones
+	})
 	if err != nil {
 		return nil, fmt.Errorf("API request failed: %w", err)
 	}

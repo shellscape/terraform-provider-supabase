@@ -15,7 +15,7 @@ func TestAccStorageBucketResource(t *testing.T) {
 	// Mock API keys endpoint for token exchange
 	gock.New("https://api.supabase.com").
 		Get("/v1/projects/mayuaycdtijbctgqbycg/api-keys").
-		MatchParam("reveal", "false").
+		MatchParam("reveal", "true").
 		Times(10).  // Allow multiple calls for caching
 		Reply(200).
 		JSON([]map[string]interface{}{
